@@ -21,6 +21,10 @@ window.addEventListener('load', function() {
     join(groupId);
   });
 
+  document.querySelector('#ready').addEventListener('click', function() {
+    ws.send(JSON.stringify({ event: 'groupIsReady' }));
+  })
+
   ws.addEventListener('open', function() {
     if (groupId) {
       join(groupId);
