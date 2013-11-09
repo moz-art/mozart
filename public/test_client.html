@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WS Client</title>
+</head>
+
+<body>
+  <div id="result"></div>
+  <h1>Join group</h1>
+  <input id="groupId" />
+  <button id="joinGroup">joinGroup</button>
+  <h1>Send message to group</h1>
+  <input id="message" />
+  <button id="sendMessageToGroup">sendMessageToGroup</button>
+  <script>
+    var ws = new WebSocket('ws://127.0.0.1:8888');
+
+    ws.onopen = function() {
+      ws.send(JSON.stringify({
+        event: 'getClientId'
+      }));
+
+      // request a group
+      ws.send(JSON.stringify({
+        event: 'generateGroup'
+      }));
+    };
+    ws.onmessage = function (event) {
+      var result = document.querySelector('#result');
+      result.innerHTML = result.innerHTML + event.data;
+    };
+
+    document.querySelector('#joinGroup').addEventListener('click', function() {
+      ws.send(JSON.stringify({
+        event: 'joinGroup',
+        data: document.querySelector('#groupId').value
+      }));
+    });
+
+    document.querySelector('#sendMessageToGroup').addEventListener('click', function() {
+      ws.send(JSON.stringify({
+        event: 'sendMessageToGroup',
+        data: document.querySelector('#message').value
+      }));
+    });
+  </script>
+</body>
+</html>
