@@ -137,8 +137,9 @@ function enablePlayer(song) {
   $('.preview-box').show();
   var player = $('.preview-audio').get(0);
   player.pause();
+  var ext = $.browser.mozilla ? '.ogg' : '.mp3';
   if (song) {
-    player.src = '../mp3/' + song + '.mp3';  
+    player.src = '../mp3/' + song + ext;  
   } else {
     player.src = '';
     player.load();
