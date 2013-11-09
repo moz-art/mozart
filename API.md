@@ -17,6 +17,11 @@
 @param {String} { event: 'joinGroup', data: groupId }.
 @response {String} { event: 'joinGroup', result: true }.
 ```
+## setGroupSong
+```
+@param {String} { event: 'setGroupSong', data: song name }.
+@response {String} { event: 'setGroupSong', result: true }.
+```
 
 ## sendMessageToGroup
 ```
