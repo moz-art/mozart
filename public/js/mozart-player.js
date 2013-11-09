@@ -139,7 +139,7 @@ function enablePreviewPlayer(song) {
   player.pause();
   var ext = $.browser.mozilla ? '.ogg' : '.mp3';
   if (song) {
-    player.src = '../mp3/' + song + ext;  
+    player.src = '../mp3/' + song + ext;
   } else {
     player.src = '';
     player.load();

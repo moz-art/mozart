@@ -54,7 +54,7 @@ window.addEventListener('load', function() {
             data: {
               speed: speed,
               vector: vector,
-              threshold: MobileMotion.max - MobileMotion.THRESHOLD_OFFSET,
+              threshold: MobileMotion.THRESHOLD,
               seq: seq
             }
           }
