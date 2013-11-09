@@ -122,19 +122,19 @@ function initSongChooser() {
   $('a[data-song]').click(function(evt) {
     choosedMIDI = evt.target.dataset.song;
     $('.song-toggle').text(choosedMIDI);
-    enablePlayer(choosedMIDI);
+    enablePreviewPlayer(choosedMIDI);
   });
   $('.song-confirm').click(function(evt) {
     sendMessage({'event': 'setGroupSong', 'data': choosedMIDI});
-    enablePlayer();
+    enablePreviewPlayer();
     downloadMIDI(choosedMIDI);
     initQRCode();
     nextStep();
   });
 }
 
-function enablePlayer(song) {
-  $('.preview-box').show();
+function enablePreviewPlayer(song) {
+  $('.preview-box').css('display', 'inline-block');
   var player = $('.preview-audio').get(0);
   player.pause();
   var ext = $.browser.mozilla ? '.ogg' : '.mp3';
@@ -143,6 +143,7 @@ function enablePlayer(song) {
   } else {
     player.src = '';
     player.load();
+    $('.preview-box').css('display', 'none');
   }
 }
 
