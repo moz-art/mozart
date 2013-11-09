@@ -1,5 +1,5 @@
 
-const SERVER = 'ws://10.32.10.197:8888/';
+const SERVER = 'ws://localhost:8888/';
 var choosedMIDI;
 var socket;
 var uiInited;
@@ -129,7 +129,7 @@ function downloadMIDI(song) {
     } else if (xhr.readyState === 4) {
       alert('failed to download midi file');
     }
-  }
+  };
   xhr.send();
 }
 
@@ -142,7 +142,7 @@ function requestGroupID() {
 }
 
 function startToPlay() {
-  console.log('start to player song now...');  
+  console.log('start to player song now...');
   activePlayer = Replayer(midiFile, MIDIChannel);
   activePlayer.finishedCallback = function() {
     activePlayer = null;
