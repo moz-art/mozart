@@ -1,13 +1,32 @@
 const WS_URL = 'ws://' + window.location.hostname + ':8888';
 
+var ws, groupId;
+
+function join(groupId) {
+  ws.send(JSON.stringify({ event: 'joinGroup', data: groupId }));
+}
+
 window.addEventListener('load', function() {
   var msg = document.getElementById('message');
-  var ws = new WebSocket(WS_URL);
+  msg.innerHTML = WS_URL;
+  ws = new WebSocket(WS_URL);
   var seq = 0;
+
+  if (window.location.hash.length > 1) {
+    groupId = window.location.hash.substr(1);
+  }
+
   document.querySelector('#join').addEventListener('click', function() {
-    var groupId = document.querySelector('#group-id').value;
-    ws.send(JSON.stringify({ event: 'joinGroup', data: groupId }));
+    groupId = document.querySelector('#group-id').value;
+    join(groupId);
   });
+
+  ws.addEventListener('open', function() {
+    if (groupId) {
+      join(groupId);
+    }
+  });
+
   ws.addEventListener('message', function(evt) {
     if (!evt.data) {
       return;
