@@ -51,6 +51,16 @@ WebSocketServer.prototype = {
 
   generateHashId: function() {
     return new Hashids(uuid.v1()).encrypt(12345);
+  },
+
+  getActiveClientsNumberByGroup: function(groupId) {
+    var length = 0;
+    for (var clientId in this.groups[groupId]) {
+      if (this.groups[groupId][clientId].readyState === READY_STATE_OPEN) {
+        length += 1;
+      }
+    }
+    return length;
   }
 };
 

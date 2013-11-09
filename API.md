@@ -27,7 +27,7 @@ After group is ready, the server will send the music manifest to the Players.
 ```
 ## setGroupSong
 ```
-@param {String} { event: 'setGroupSong', data: song name }.
+@param {String} { event: 'setGroupSong', data: song filename }.
 @response {String} { event: 'setGroupSong', result: true }.
 ```
 
@@ -40,6 +40,18 @@ After group is ready, the server will send the music manifest to the Players.
 sendMessageToGroup is used for Player and Input communicated each other.
 For example, Input would like to speed up the speed of music:
 Use it with data `{ action: 'controlSpeed',  data: 0.8 }`.
+
+## trackList
+```
+@response {String} { event: 'trackList', data: trackIdArray, result: true }.
+```
+
+## tracksManifest
+```
+@response {String} { event: 'tracksManifest', data: tracksManifest, result: true }.
+```
+
+See the data format in the /ws_server/lib/tracks_manifest.js.
 
 ## ntp
 ```
