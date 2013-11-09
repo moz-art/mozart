@@ -182,9 +182,9 @@ if (window.AudioContext) (function () {
 		/// convert relative delay to absolute delay
 		if (delay < ctx.currentTime) delay += ctx.currentTime;
 		/// crate audio buffer
-		console.log("moz-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
-					  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
-					  MIDI.GeneralMIDI.byId[instrument].sustainable);
+		//console.log("moz-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
+		//			  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
+		//			  MIDI.GeneralMIDI.byId[instrument].sustainable);
 		var source = ctx.createBufferSource();
 		sources[channel + "" + note] = source;
 		source.buffer = audioBuffers[instrument + "" + note];
@@ -328,9 +328,9 @@ if (window.webkitAudioContext) (function () {
 		/// convert relative delay to absolute delay
 		if (delay < ctx.currentTime) delay += ctx.currentTime;
 		/// crate audio buffer
-		console.log("webkit-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
-			  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
-			  MIDI.GeneralMIDI.byId[instrument].sustainable);
+		//console.log("webkit-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
+		//	  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
+		//	  MIDI.GeneralMIDI.byId[instrument].sustainable);
 		var source = ctx.createBufferSource();
 		sources[channel + "" + note] = source;
 		source.buffer = audioBuffers[instrument + "" + note];

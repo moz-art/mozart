@@ -12,6 +12,14 @@
 @response {String} { event: 'generateGroup', data: groupId, result: true }.
 ```
 
+## groupIsReady
+```
+@param {String} { event: 'groupIsReady' }.
+@response {String} { event: 'groupIsReady', result: true }.
+```
+
+After group is ready, the server will send the music manifest to the Players.
+
 ## joinGroup
 ```
 @param {String} { event: 'joinGroup', data: groupId }.
