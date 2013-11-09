@@ -32,7 +32,7 @@ window.addEventListener('load', function() {
       return;
     }
     var ret = JSON.parse(evt.data);
-    if (ret.event === 'joinGroup' && ret.result) {
+    if (ret.event === 'allPlayersReady' && ret.result) {
       ws.send(JSON.stringify({
         event: 'sendMessageToGroup',
         data: {action: 'play'}
