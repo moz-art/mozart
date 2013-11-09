@@ -66,7 +66,7 @@ function initMIDIjs() {
 
                   , "oboe", "string_ensemble_2", "flute"
                   ],*/
-      instruments: ["acoustic_grand_piano"],
+      instruments: ["acoustic_grand_piano", "violin", "contrabass"],
     callback: init
   });
 }
