@@ -54,7 +54,7 @@ function handleMessage(msg) {
 function initMIDIjs() {
   hideAll();
   MIDI.loadPlugin({
-    soundfontUrl: "../lib/MIDI.js/soundfont/",
+    soundfontUrl: "../js/MIDI.js/soundfont/",
 /*    instruments: ["acoustic_grand_piano", "bright_acoustic_piano", "dulcimer" , "timpani", "trombone", "french_horn",
                   "orchestral_harp", "string_ensemble_1", "tremolo_strings", "trumpet",
                   "tubular_bells", "pad_8_sweep", "brass_section", "pizzicato_strings"
