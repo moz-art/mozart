@@ -69,6 +69,10 @@ function handleMessage(msg) {
 
 function rendering (data) {
   var ctx = canvas.getContext('2d');
+  ctx.moveTo(data.seq + 2, 0);
+  ctx.lineTo(data.seq + 2, 300);
+  ctx.stroke();
+
   ctx.clearRect(data.seq + 1, 0, 1, 300);
   ctx.fillStyle = '#ce5c00';
   ctx.beginPath();

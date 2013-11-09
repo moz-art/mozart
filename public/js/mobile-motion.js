@@ -1,6 +1,6 @@
 var MobileMotion = {
   MAX_QUEUE_LEN: 10,
-  THRESHOLD: 8,
+  THRESHOLD: 15,
   MAX_SPEED: 1000,
   MIN_SPEED: 100,
   TARGET_MAX_SPEED: 2,
