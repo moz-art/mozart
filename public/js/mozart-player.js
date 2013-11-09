@@ -1,5 +1,5 @@
 
-const SERVER = 'ws://10.32.10.197:8888/';
+const SERVER = 'ws://localhost:8080/';
 var choosedMIDI;
 var socket;
 var uiInited;
@@ -99,11 +99,28 @@ function hideAll() {
 function initSongChooser() {
   $('a[data-song]').click(function(evt) {
     choosedMIDI = evt.target.dataset.song;
+    $('.song-toggle').text(choosedMIDI);
+    enablePlayer(choosedMIDI);
+  });
+  $('.song-confirm').click(function(evt) {
     sendMessage({'event': 'setGroupSong', 'data': choosedMIDI});
+    enablePlayer();
     downloadMIDI(choosedMIDI);
     initQRCode();
     nextStep();
   });
+}
+
+function enablePlayer(song) {
+  $('.preview-box').show();
+  var player = $('.preview-audio').get(0);
+  player.pause();
+  if (song) {
+    player.src = '../mp3/' + song + '.mp3';  
+  } else {
+    player.src = '';
+    player.load();
+  }
 }
 
 function initQRCode() {

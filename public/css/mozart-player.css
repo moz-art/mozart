@@ -1,3 +1,8 @@
 .step-0 .panel-body {
   text-align: center;
 }
+
+.preview-box {
+  display: inline-block;
+  display: none;
+}
