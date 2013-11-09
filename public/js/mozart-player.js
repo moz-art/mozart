@@ -8,6 +8,7 @@ var currentStep = 0;
 var groupID = '';
 var midiFile;
 var activePlayer;
+var canvas;
 
 /**
  * start of socket
@@ -32,7 +33,6 @@ function sendMessage(msg) {
 }
 
 function handleMessage(msg) {
-  console.log('msg: ', msg);
   var data = JSON.parse(msg.data);
   if (data.event === 'generateGroup') {
     groupID = data.data;
@@ -41,12 +41,33 @@ function handleMessage(msg) {
   } else if (data.event === 'sendMessageToGroup') {
     var ctrl = data.data;
     if (ctrl.action === 'play') {
+      console.log('play');
       startToPlay();
-    } else if (ctrl.action === 'speed'){
-      activePlayer.changeSpeed(ctrl.data);
+    } else if (ctrl.action === 'speed') {
+      if (ctrl.data.speed) {
+        activePlayer.changeSpeed(ctrl.data.speed);
+      }
+      if (canvas) {
+        rendering(ctrl.data);
+      }
     }
   }
 }
+
+function rendering (data) {
+  var ctx = canvas.getContext('2d');
+  ctx.clearRect(data.seq + 1, 0, 1, 300);
+  ctx.fillStyle = '#ce5c00';
+  ctx.beginPath();
+  ctx.arc(data.seq, data.vector * 10, 1, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.fillStyle = '#000000';
+  ctx.beginPath();
+  ctx.arc(data.seq, data.threshold * 10, 1, 0, 2*Math.PI);
+  ctx.fill();
+}
+
 /**
  * end of socket
  */
@@ -85,6 +106,7 @@ function nextStep() {
 }
 
 function init() {
+  canvas = document.getElementById('canvas');
   initSongChooser();
   uiInited = true;
   readyToGo();
@@ -175,6 +197,7 @@ function startToPlay() {
     alert('finished');
   };
   activePlayer.replay();
+  console.log('done')
 }
 
 initSocket();
