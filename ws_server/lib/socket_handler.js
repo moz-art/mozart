@@ -5,6 +5,7 @@ function SocketHandler(ws) {
   this.client = {};
   this.data = {};
   this.groupSongs = {};
+  this.groupReady = {};
 }
 
 SocketHandler.prototype = {
@@ -30,6 +31,9 @@ SocketHandler.prototype = {
         break;
       case 'sendMessageToGroup':
         this._sendMessageToGroup();
+        break;
+      case 'playerIsReady':
+        this.playerIsReady();
         break;
       case 'ntp':
         this._ntp();
@@ -86,7 +90,10 @@ SocketHandler.prototype = {
     for (var client in trackMap) {
       this.ws.groups[groupId][client].send(JSON.stringify({
         event: 'trackList',
-        data: trackMap[client],
+        data: {
+          song: groupSongs[groupId],
+          tracks: trackMap[client] 
+        },
         result: true
       }));
     }
@@ -187,6 +194,28 @@ SocketHandler.prototype = {
     this.ws.sendMessageToGroup(groupId, JSON.stringify(message));
     this.client.send(JSON.stringify(response));
     console.log('Client ' + this.client.id + ' send message to ' + groupId + ' group: ' + JSON.stringify(message));
+  },
+
+  _playerIsReady: function() {
+    var groupId = this.client.groupId,
+        response = {
+          event: this.data.event,
+          result: true
+        };
+    if (this.groupReady[groupId]) {
+      this.groupReady[groupId] += 1;
+    } else {
+      this.groupReady[groupId] = 0;      
+    }
+
+    this.client.send(JSON.stringify(response));
+
+    if (this.ws.getActiveClientsNumberByGroup(groupId) === this.groupReady[groupId]) {
+      this.ws.sendMessageToGroup(groupId, JSON.stringify({
+        event: 'allPlayersReady',
+        result: true
+      }));
+    }
   },
 
   _ntp: function() {}

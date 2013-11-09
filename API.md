@@ -41,9 +41,16 @@ sendMessageToGroup is used for Player and Input communicated each other.
 For example, Input would like to speed up the speed of music:
 Use it with data `{ action: 'controlSpeed',  data: 0.8 }`.
 
+## playerIsReady
+```
+@param {String} { event: 'playerIsReady' }.
+@response {String} { event: 'playerIsReady', result: true }.
+```
+If all player is ready in a group, the server will sendn a message `{ event: 'allPlayersReady', result: true }` to start the game.
+
 ## trackList
 ```
-@response {String} { event: 'trackList', data: trackIdArray, result: true }.
+@response {String} { event: 'trackList', data: { song: filename, tracks: trackIdArray }, result: true }.
 ```
 
 ## tracksManifest
