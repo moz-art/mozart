@@ -23,3 +23,5 @@ var TracksManifest = {
     }
   }
 };
+
+module.exports = TracksManifest;
