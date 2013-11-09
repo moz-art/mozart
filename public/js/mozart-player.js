@@ -124,11 +124,14 @@ function enablePlayer(song) {
 }
 
 function initQRCode() {
-  $('#group-id').text(groupID);
+  var href = window.location.href;
+  href = href.substring(0, href.lastIndexOf('/player/')) +
+         '/conductor/#' + groupID;
+  $('#group-id').text(href);
   $('.qrcode-group-id').qrcode({
     render: 'canvas',
     size: 400,
-    text: groupID,
+    text: href,
     label: groupID
   });
   $('.qr-loading').hide();
