@@ -26,7 +26,7 @@
 
 sendMessageToGroup is used for Player and Input communicated each other.
 For example, Input would like to speed up the speed of music:
-Use it with data { action: 'controlSpeed',  data: 0.8 }.
+Use it with data `{ action: 'controlSpeed',  data: 0.8 }`.
 
 ## ntp
 ```

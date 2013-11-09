@@ -105,6 +105,8 @@ var setPlugin = function(root) {
 		}, function (err) { // well at least we tried!
 			if (window.webkitAudioContext) { // Chrome
 				conf.api = "webaudio";
+			} else if (window.AudioContext) { // Firefox 25
+				conf.api = "webaudiofx";
 			} else if (window.Audio) { // Firefox
 				conf.api = "audiotag";
 			} else { // Internet Explorer
@@ -117,15 +119,162 @@ var setPlugin = function(root) {
 
 /*
 	--------------------------------------------
-	Web Audio API - OGG or MPEG Soundbank
+	Web Audio API firefox - OGG or MPEG Soundbank
 	--------------------------------------------
 	https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html
 	--------------------------------------------
 */
 
-if (window.AudioContext || window.webkitAudioContext) (function () {
+if (window.AudioContext) (function () {
+	var noteName = ['C', 'C#', 'D', 'D#', 'E', 'F', 'G', 'G#', 'A', 'A#', 'B'];
+	var AudioContext = window.AudioContext;
+	var root = MIDI.WebAudio = {
+		api: "webaudiofx"
+	};
+	var ctx;
+	var sources = {};
+	var gains = {};
+	var masterVolume = 127;
+	var audioBuffers = {};
+	var audioLoader = function (instrument, urlList, index, bufferList, callback) {
+		var synth = MIDI.GeneralMIDI.byName[instrument];
+		var instrumentId = synth.number;
+		var url = urlList[index];
+		if (!MIDI.Soundfont[instrument][url]) { // missing soundfont
+			return callback(instrument);
+		}
+		var base64 = MIDI.Soundfont[instrument][url].split(",")[1];
+		var buffer = Base64Binary.decodeArrayBuffer(base64);
+		ctx.decodeAudioData(buffer, function (buffer) {
+			var msg = url;
+			while (msg.length < 3) msg += "&nbsp;";
+			if (typeof (MIDI.loader) !== "undefined") {
+				MIDI.loader.update(null, synth.instrument + "<br>Processing: " + (index / 87 * 100 >> 0) + "%<br>" + msg);
+			}
+			buffer.id = url;
+			bufferList[index] = buffer;
+			//
+			if (bufferList.length === urlList.length) {
+				while (bufferList.length) {
+					buffer = bufferList.pop();
+					if (!buffer) continue;
+					var nodeId = MIDI.keyToNote[buffer.id];
+					audioBuffers[instrumentId + "" + nodeId] = buffer;
+				}
+				callback(instrument);
+			}
+		});
+	};
 
-	var AudioContext = window.AudioContext || window.webkitAudioContext;
+	root.setVolume = function (channel, volume) {
+		masterVolume = volume;
+	};
+
+	root.programChange = function (channel, program) {
+		MIDI.channels[channel].instrument = program;
+	};
+
+	root.noteOn = function (channel, note, velocity, delay) {
+		/// check whether the note exists
+		if (!MIDI.channels[channel]) return;
+		var instrument = MIDI.channels[channel].instrument;
+		if (!audioBuffers[instrument + "" + note]) return;
+		/// convert relative delay to absolute delay
+		if (delay < ctx.currentTime) delay += ctx.currentTime;
+		/// crate audio buffer
+		console.log("moz-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
+					  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
+					  MIDI.GeneralMIDI.byId[instrument].sustainable);
+		var source = ctx.createBufferSource();
+		sources[channel + "" + note] = source;
+		source.buffer = audioBuffers[instrument + "" + note];
+		source.connect(ctx.destination);
+		source.loopStart = 1;
+		source.loopEnd = source.buffer.duration;
+		source.loop = MIDI.GeneralMIDI.byId[instrument].sustainable;
+
+		var gainNode = ctx.createGain();
+		gains[channel + "" + note] = gainNode;
+		var value = (velocity / 127) * (masterVolume / 127) * 2 - 1;
+		gainNode.connect(ctx.destination);
+		gainNode.gain.value = Math.max(-1, value);
+		source.connect(gainNode);
+		if (source.noteOn) {
+			source.noteOn(delay || 0);
+		} else {
+			source.start(delay || 0);	
+		}
+		return source;
+	};
+
+	root.noteOff = function (channel, note, delay) {
+		delay = delay || 0;
+		if (delay < ctx.currentTime) delay += ctx.currentTime;
+		var source = sources[channel + "" + note];
+		var gain = gains[channel + "" + note];
+		delete gains[channel + "" + note];
+		if (!source) return;
+		gain && gain.gain.linearRampToValueAtTime(1, delay);
+		gain && gain.gain.linearRampToValueAtTime(0, delay + 0.1);
+		if (source.noteOff) {
+			source.noteOff(delay + 0.2);
+		} else {
+			source.stop(delay + 0.2);
+		}
+		return source;
+	};
+
+	root.chordOn = function (channel, chord, velocity, delay) {
+		var ret = {}, note;
+		for (var n = 0, length = chord.length; n < length; n++) {
+			ret[note = chord[n]] = root.noteOn(channel, note, velocity, delay);
+		}
+		return ret;
+	};
+
+	root.chordOff = function (channel, chord, delay) {
+		var ret = {}, note;
+		for (var n = 0, length = chord.length; n < length; n++) {
+			ret[note = chord[n]] = root.noteOff(channel, note, delay);
+		}
+		return ret;
+	};
+
+	root.connect = function (conf) {
+		setPlugin(root);
+		//
+		MIDI.Player.ctx = ctx = new AudioContext();
+		///
+		var urlList = [];
+		var keyToNote = MIDI.keyToNote;
+		for (var key in keyToNote) urlList.push(key);
+		var bufferList = [];
+		var pending = {};
+		var oncomplete = function(instrument) {
+			delete pending[instrument];
+			for (var key in pending) break;
+			if (!key) conf.callback();
+		};
+		for (var instrument in MIDI.Soundfont) {
+			pending[instrument] = true;
+			for (var i = 0; i < urlList.length; i++) {
+				audioLoader(instrument, urlList, i, bufferList, oncomplete);
+			}
+		}
+	};
+})();
+
+/*
+	--------------------------------------------
+	Web Audio API Chrome - OGG or MPEG Soundbank
+	--------------------------------------------
+	https://dvcs.w3.org/hg/audio/raw-file/tip/webaudio/specification.html
+	--------------------------------------------
+*/
+
+if (window.webkitAudioContext) (function () {
+	var noteName = ['C', 'C#', 'D', 'D#', 'E', 'F', 'G', 'G#', 'A', 'A#', 'B'];
+	var AudioContext = window.webkitAudioContext;
 	var root = MIDI.WebAudio = {
 		api: "webaudio"
 	};
@@ -179,10 +328,16 @@ if (window.AudioContext || window.webkitAudioContext) (function () {
 		/// convert relative delay to absolute delay
 		if (delay < ctx.currentTime) delay += ctx.currentTime;
 		/// crate audio buffer
+		console.log("webkit-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
+			  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
+			  MIDI.GeneralMIDI.byId[instrument].sustainable);
 		var source = ctx.createBufferSource();
 		sources[channel + "" + note] = source;
 		source.buffer = audioBuffers[instrument + "" + note];
 		source.connect(ctx.destination);
+		source.loopStart = 1;
+		source.loopEnd = source.buffer.duration;
+		source.loop = MIDI.GeneralMIDI.byId[instrument].sustainable;
 		///
 		var gainNode = ctx.createGainNode();
 		var value = (velocity / 127) * (masterVolume / 127) * 2 - 1;
@@ -510,7 +665,7 @@ if (window.Audio) (function () {
 */
 
 // instrument-tracker
-MIDI.GeneralMIDI = (function (arr) {
+MIDI.GeneralMIDI = (function (arr, sustainablearr) {
 	var clean = function(v) {
 		return v.replace(/[^a-z0-9 ]/gi, "").replace(/[ ]/g, "_").toLowerCase();
 	};
@@ -525,6 +680,7 @@ MIDI.GeneralMIDI = (function (arr) {
 			var instrument = list[n];
 			if (!instrument) continue;
 			var num = parseInt(instrument.substr(0, instrument.indexOf(" ")), 10);
+			var sustainable = sustainablearr.indexOf(num) != -1;
 			instrument = instrument.replace(num + " ", "");
 			ret.byId[--num] = 
 			ret.byName[clean(instrument)] = 
@@ -532,7 +688,8 @@ MIDI.GeneralMIDI = (function (arr) {
 				id: clean(instrument),
 				instrument: instrument,
 				number: num,
-				category: key
+				category: key,
+				sustainable: sustainable
 			};
 		}
 	}
@@ -554,7 +711,16 @@ MIDI.GeneralMIDI = (function (arr) {
 	'Ethnic': ['105 Sitar', '106 Banjo', '107 Shamisen', '108 Koto', '109 Kalimba', '110 Bagpipe', '111 Fiddle', '112 Shanai'],
 	'Percussive': ['113 Tinkle Bell', '114 Agogo', '115 Steel Drums', '116 Woodblock', '117 Taiko Drum', '118 Melodic Tom', '119 Synth Drum'],
 	'Sound effects': ['120 Reverse Cymbal', '121 Guitar Fret Noise', '122 Breath Noise', '123 Seashore', '124 Bird Tweet', '125 Telephone Ring', '126 Helicopter', '127 Applause', '128 Gunshot']
-});
+}, [17, 18, 19, 20, 21, 22, 23, 24,
+		29, 30, 31, 32,
+		41, 42, 43, 44, 45,
+		49, 50, 51, 52, 53, 54, 55,
+		57, 58, 59, 60, 61, 62, 63, 64,
+		65, 66, 67, 68, 69, 70, 71, 72,
+		73, 74, 75, 76, 77, 78, 79, 80,
+		81, 82, 83, 84, 85, 86, 87, 88,
+		89, 90, 91, 92, 93, 94, 95, 96,
+		111, 112]);
 
 // channel-tracker
 MIDI.channels = (function () { // 0 - 15 channels

@@ -48,6 +48,8 @@ MIDI.loadPlugin = function(conf) {
 			api = "webmidi";
 		} else if (window.webkitAudioContext) { // Chrome
 			api = "webaudio";
+		} else if (window.AudioContext) { // Firefox 25
+			api = "webaudiofx";
 		} else if (window.Audio) { // Firefox
 			api = "audiotag";
 		} else { // Internet Explorer
@@ -116,7 +118,7 @@ connect.audiotag = function(filetype, instruments, conf) {
 	});
 };
 
-connect.webaudio = function(filetype, instruments, conf) {
+connect.webaudio = connect.webaudiofx = function(filetype, instruments, conf) {
 	if (MIDI.loader) MIDI.loader.message("Web Audio API...");
 	// works awesome! safari and chrome support
 	var queue = createQueue({
@@ -154,6 +156,7 @@ connect.webaudio = function(filetype, instruments, conf) {
 var apis = {
 	"webmidi": true, 
 	"webaudio": true, 
+	"webaudiofx": true,
 	"audiotag": true, 
 	"flash": true 
 };
