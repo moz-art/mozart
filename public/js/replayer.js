@@ -10,7 +10,7 @@ function Replayer(midiFile, channelClass) {
   var timerID;
   var startTime;
   var stop = false;
-  var activeChannel = null;
+  var activeChannels = null;
   
   for (var i = 0; i < midiFile.tracks.length; i++) {
     trackStates[i] = {
@@ -125,8 +125,8 @@ function Replayer(midiFile, channelClass) {
         }
         break;
       case 'channel':
-        if (activeChannel !== null && activeChannel !== undefined
-            && activeChannel !== event.channel) {
+        if (activeChannels !== null && activeChannels !== undefined &&
+            activeChannels.indexOf(event.channel + 1) == -1) {
           return;
         }
         switch (event.subtype) {
@@ -165,17 +165,17 @@ function Replayer(midiFile, channelClass) {
     console.log('speed: ', speed);
   }
 
-  function setActiveChannel(channel) {
-    activeChannel = channel;
+  function setActiveChannels(channels) {
+    activeChannels = channels;
   }
-  
+
   var self = {
-    'setActiveChannel': setActiveChannel,
+    'setActiveChannels': setActiveChannels,
   	'changeSpeed': changeSpeed,
     'replay': replay,
     'stop': stopPlaying,
     'finished': false, 
     'finishedCallback': null
-  }
+  };
   return self;
 }
