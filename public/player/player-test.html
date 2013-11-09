@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>MIDI Player</title>
+    <!-- midifile of jasmid -->
+    <script src="/public/js/jasmid/stream.js" type="text/javascript"></script>
+    <script src="/public/js/jasmid/midifile.js" type="text/javascript"></script>
+    <!-- MIDI.js -->
+    <script src="/public/js/MIDI.js/js/MIDI/Player.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/js/MIDI/AudioDetect.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/js/MIDI/LoadPlugin.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/js/MIDI/Plugin.js" type="text/javascript"></script>
+    <!--<script src="MIDI.js/build/MIDI.js" type="text/javascript"></script>-->
+    <script src="/public/js/MIDI.js/js/Window/DOMLoader.XMLHttp.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/js/Window/DOMLoader.script.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/inc/Base64.js" type="text/javascript"></script>
+    <script src="/public/js/MIDI.js/inc/base64binary.js" type="text/javascript"></script>
+    <!-- midi-player -->
+    <script src="/public/js/midi-channel.js" type="text/javascript"></script>
+    <script src="/public/js/replayer.js" type="text/javascript"></script>
+    <script src="/public/js/player.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <button class="midi-btn" data-src="../midi/littlestar.mid" type="button">little star</button>
+    <button class="midi-btn" data-src="../midi/wedding.mid" type="button">Dreams Wedding</button>
+    <button class="midi-btn" data-src="../midi/pachelbel_canon.mid" type="button">canon</button>
+    <hr>
+    <section id="message-section">
+      <label id="message"></label>
+    </section>
+    <section id="control-section" hidden>
+      <input id="text-speed" type="text" value="1">
+      <button id="btn-update-speed" type="button">change</button>
+      <button id="btn-stop" type="button">stop</button>
+    </section>
+  </body>
+</html>

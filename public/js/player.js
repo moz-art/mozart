@@ -17,7 +17,7 @@ function $(id) {
 function domReady() {
   $('message').textContent = 'Initialize MIDI player';
   MIDI.loadPlugin({
-    soundfontUrl: "public/lib/MIDI.js/soundfont/",
+    soundfontUrl: "/public/js/MIDI.js/soundfont/",
 /*    instruments: ["acoustic_grand_piano", "bright_acoustic_piano", "dulcimer" , "timpani", "trombone", "french_horn",
                   "orchestral_harp", "string_ensemble_1", "tremolo_strings", "trumpet",
                   "tubular_bells", "pad_8_sweep", "brass_section", "pizzicato_strings"
@@ -29,7 +29,7 @@ function domReady() {
 
                   , "oboe", "string_ensemble_2", "flute"
                   ],*/
-      instruments: ["acoustic_grand_piano"],
+      instruments: ["acoustic_grand_piano", "violin", "contrabass"],
     callback: function() {
       $('message').textContent = 'Ready';
       initMIDIButtons();
