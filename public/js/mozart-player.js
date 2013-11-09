@@ -125,6 +125,12 @@ function enablePlayer(song) {
 
 function initQRCode() {
   $('#group-id').text(groupID);
+  $('.qrcode-group-id').qrcode({
+    render: 'canvas',
+    size: 400,
+    text: groupID,
+    label: groupID
+  });
   $('.qr-loading').hide();
 }
 
