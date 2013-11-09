@@ -1,5 +1,5 @@
 
-const SERVER = 'ws://localhost:8888/';
+const SERVER = 'ws://10.32.10.197:8888/';
 var choosedMIDI;
 var socket;
 var uiInited;
@@ -10,6 +10,7 @@ var midiFile;
 var activePlayer;
 var canvas;
 var joinToOthers = false;
+var allTracks;
 
 /**
  * start of socket
@@ -40,30 +41,61 @@ function sendMessage(msg) {
   socket.send(JSON.stringify(msg));
 }
 
+function handleGroupMessage(ctrl) {
+  console.log('group message: ' + ctrl.action);
+  if (ctrl.action === 'play') {
+    console.log('play');
+    startToPlay();
+  } else if (ctrl.action === 'speed') {
+    if (ctrl.data.speed) {
+      activePlayer.changeSpeed(ctrl.data.speed);
+    }
+    if (canvas) {
+      rendering(ctrl.data);
+    }
+  }
+}
+
+function handleTrackList(list) {
+  console.log('choosedMIDI', choosedMIDI);
+  var instruments = [];
+  var channels = [];
+  list.forEach(function(track) {
+    console.log('track', track);
+    allTracks[choosedMIDI][track].forEach(function(instrument) {
+      if (instruments.indexOf(instrument) === -1) {
+        instruments.push(instrument);
+      }
+    });
+    channels.push(parseInt(track));
+  });
+  downloadMIDI(choosedMIDI, function() {
+    initMIDIjs(instruments, channels);
+  });
+}
+
 function handleMessage(msg) {
   var data = JSON.parse(msg.data);
+  console.log('server message: ' + data.event);
   if (data.event === 'generateGroup') {
     groupID = data.data;
     socketInited = true;
     joinToOthers = false;
     readyToGo();
   } else if (data.event === 'joinGroup') {
+    console.log('group joined');
     socketInited = true;
     joinToOthers = true;
     readyToGo();
   } else if (data.event === 'sendMessageToGroup') {
-    var ctrl = data.data;
-    if (ctrl.action === 'play') {
-      console.log('play');
-      startToPlay();
-    } else if (ctrl.action === 'speed') {
-      if (ctrl.data.speed) {
-        activePlayer.changeSpeed(ctrl.data.speed);
-      }
-      if (canvas) {
-        rendering(ctrl.data);
-      }
-    }
+    handleGroupMessage(data.data);
+  } else if (data.event === 'trackList') {
+    console.log('track list got');
+    choosedMIDI = data.data.song;
+    handleTrackList(data.data.tracks);
+  } else if (data.event === 'tracksManifest') {
+    console.log('all tracks got');
+    allTracks = data.data.data;
   }
 }
 
@@ -89,23 +121,22 @@ function rendering (data) {
  * end of socket
  */
 
-function initMIDIjs() {
-  hideAll();
+function initMIDIjs(instruments, channels) {
+  console.log('start loading MIDI.js');
   MIDI.loadPlugin({
     soundfontUrl: "../js/MIDI.js/soundfont/",
-/*    instruments: ["acoustic_grand_piano", "bright_acoustic_piano", "dulcimer" , "timpani", "trombone", "french_horn",
-                  "orchestral_harp", "string_ensemble_1", "tremolo_strings", "trumpet",
-                  "tubular_bells", "pad_8_sweep", "brass_section", "pizzicato_strings"
-
-
-                  , "clarinet", "harpsichord", "choir_aahs", "orchestra_hit"
-
-                  , "violin", "cello"
-
-                  , "oboe", "string_ensemble_2", "flute"
-                  ],*/
-      instruments: ["acoustic_grand_piano", "violin", "contrabass"],
-    callback: init
+    instruments: instruments,
+    callback: function() {
+      activePlayer = Replayer(midiFile, MIDIChannel);
+      activePlayer.finishedCallback = function() {
+        activePlayer = null;
+        alert('finished, please reload to replay it.');
+      };
+      console.log('soundfont is downloaded...');
+      activePlayer.setActiveChannels(channels);
+      console.log('channel configured')
+      sendMessage({'event': 'playerIsReady'});
+    }
   });
 }
 
@@ -130,6 +161,7 @@ function nextStep() {
 }
 
 function init() {
+  hideAll();
   canvas = document.getElementById('canvas');
   initSongChooser();
   uiInited = true;
@@ -151,7 +183,6 @@ function initSongChooser() {
   $('.song-confirm').click(function(evt) {
     sendMessage({'event': 'setGroupSong', 'data': choosedMIDI});
     enablePreviewPlayer();
-    downloadMIDI(choosedMIDI);
     initQRCode();
     nextStep();
   });
@@ -185,12 +216,14 @@ function initQRCode() {
   $('.qr-loading').hide();
 }
 
-function downloadMIDI(song) {
+function downloadMIDI(song, readyCallback) {
+  console.log('download midi');
   var xhr = new XMLHttpRequest();
   xhr.open('GET', '../midi/' + song);
   xhr.overrideMimeType("text/plain; charset=x-user-defined");
   xhr.onreadystatechange = function() {
     if(xhr.readyState == 4 && xhr.status == 200) {
+      console.log('midi downloaded');
       /* munge response into a binary string */
       var t = xhr.responseText || "" ;
       var ff = [];
@@ -200,8 +233,11 @@ function downloadMIDI(song) {
         ff[z] = scc(t.charCodeAt(z) & 255);
       }
       parseMIDI(ff.join(""));
+      if (readyCallback) {
+        readyCallback();
+      }
     } else if (xhr.readyState === 4) {
-      alert('failed to download midi file');
+      alert('failed to download midi file, please reload');
     }
   };
   xhr.send();
@@ -221,15 +257,9 @@ function joinGroup(id) {
 
 function startToPlay() {
   console.log('start to player song now...');
-  activePlayer = Replayer(midiFile, MIDIChannel);
-  activePlayer.finishedCallback = function() {
-    activePlayer = null;
-    alert('finished');
-  };
   activePlayer.replay();
-  console.log('done')
 }
 
 initSocket();
-$(document).ready(initMIDIjs);
+$(document).ready(init);
 
