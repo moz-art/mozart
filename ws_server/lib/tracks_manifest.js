@@ -20,6 +20,11 @@ var TracksManifest = {
       '02': ['violin'],
       '03': ['violin'],
       '04': ['contrabass']
+    },
+
+    'bumblebee.mid': {
+      '01': ['acoustic_grand_piano'],
+      '02': ['acoustic_grand_piano']
     }
   }
 };
