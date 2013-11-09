@@ -9,6 +9,7 @@ var groupID = '';
 var midiFile;
 var activePlayer;
 var canvas;
+var joinToOthers = false;
 
 /**
  * start of socket
@@ -16,7 +17,14 @@ var canvas;
 function initSocket() {
     socket = new WebSocket(SERVER);
     socket.onopen = function() {
-      requestGroupID();
+      var href = window.location.href;
+      if (/\#[a-zA-Z0-9]+$/.test(href)) {
+
+        groupID = href.substring(href.lastIndexOf('#') + 1);
+        joinGroup(groupID);
+      } else {
+        requestGroupID();  
+      }
     };
 
     socket.onerror = function() {
@@ -37,6 +45,11 @@ function handleMessage(msg) {
   if (data.event === 'generateGroup') {
     groupID = data.data;
     socketInited = true;
+    joinToOthers = false;
+    readyToGo();
+  } else if (data.event === 'joinGroup') {
+    socketInited = true;
+    joinToOthers = true;
     readyToGo();
   } else if (data.event === 'sendMessageToGroup') {
     var ctrl = data.data;
@@ -97,7 +110,14 @@ function readyToGo() {
     console.log('wait for other, ', uiInited, socketInited);
     return;
   }
-  nextStep();
+  console.log(joinToOthers);
+  if (joinToOthers) {
+    $('.step-' + currentStep).hide();
+    currentStep = 2;
+    nextStep();
+  } else {
+    nextStep();
+  }
 }
 
 function nextStep() {
@@ -189,6 +209,10 @@ function parseMIDI(data) {
 
 function requestGroupID() {
   sendMessage({'event': 'generateGroup'});
+}
+
+function joinGroup(id) {
+ sendMessage({'event': 'joinGroup', 'data': id}); 
 }
 
 function startToPlay() {
