@@ -285,7 +285,8 @@ function initQRCode() {
   var href = window.location.href;
   href = href.substring(0, href.lastIndexOf('/player/')) +
          '/conductor/#' + groupID;
-  $('#group-id').text(href);
+  $('#group-id').get(0).innerHTML = 'Conductor Page: <a target="_blank" href="'
+                                    + href + '">' + href + '</a>';
   $('.qrcode-group-id').qrcode({
     render: 'canvas',
     size: 400,
