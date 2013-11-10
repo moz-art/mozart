@@ -169,9 +169,14 @@ function Replayer(midiFile, channelClass) {
     activeChannels = channels;
   }
 
+  function getSpeed() {
+    return speed;
+  }
+
   var self = {
     'setActiveChannels': setActiveChannels,
   	'changeSpeed': changeSpeed,
+    'getSpeed': getSpeed,
     'replay': replay,
     'stop': stopPlaying,
     'finished': false, 

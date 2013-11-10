@@ -26,6 +26,7 @@ function initSocket() {
       } else {
         requestGroupID();  
       }
+      scheduleSyncGroupSpeed();
     };
 
     socket.onerror = function() {
@@ -47,13 +48,32 @@ function handleGroupMessage(ctrl) {
     console.log('play');
     startToPlay();
   } else if (ctrl.action === 'speed') {
-    if (ctrl.data.speed) {
-      activePlayer.changeSpeed(ctrl.data.speed);
-    }
-    if (canvas) {
-      rendering(ctrl.data);
-    }
   }
+}
+
+function scheduleNextTimeSpan(func, span) {
+  var lNow = NTP.fixTime();
+  var wait = span - (lNow % span);
+  setTimeout(func, wait);
+}
+
+function scheduleSyncGroupSpeed() {
+  scheduleNextTimeSpan(function() {
+    sendMessage({'event': 'getGroupSpeed', 'data': NTP.getNow()});
+  }, 500);
+}
+
+function handleGroupSpeed(data) {
+  var clientTime = data.clientTme;
+  var processTime = data.responseTime - data.triggerTime;
+  NTP.parseServerResponse(clientTime,
+                          clientTime - data.triggerTime - processTime);
+  if (activePlayer && activePlayer.getSpeed() !== data.speed) {
+    scheduleNextTimeSpan(function() {
+      activePlayer.changeSpeed(data.speed);
+    }, 500);
+  }  
+  scheduleSyncGroupSpeed();
 }
 
 function handleTrackList(list) {
@@ -76,7 +96,10 @@ function handleTrackList(list) {
 
 function handleMessage(msg) {
   var data = JSON.parse(msg.data);
-  console.log('server message: ' + data.event);
+  if (data.event !== 'getGroupSpeed') {
+    console.log('server message: ' + data.event);
+  }
+
   if (data.event === 'generateGroup') {
     groupID = data.data;
     socketInited = true;
@@ -96,8 +119,10 @@ function handleMessage(msg) {
   } else if (data.event === 'tracksManifest') {
     console.log('all tracks got');
     allTracks = data.data.data;
+  } else if (data.event === 'getGroupSpeed') {
+    handleGroupSpeed(data.data);
   }
-}
+ }
 
 function rendering (data) {
   var ctx = canvas.getContext('2d');
