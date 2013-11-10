@@ -1,3 +1,5 @@
+@import url(http://fonts.googleapis.com/css?family=IM+Fell+English+SC);
+
 .step-0 .panel-body {
   text-align: center;
 }
@@ -14,7 +16,6 @@
   text-align: center;
   text-shadow: 0 1px 0 rgba(0,0,0,.15);
   color: #AD926D;
-  margin-bottom: 15px;
   background-image: -ms-linear-gradient(top left, #6E3300 0%, #000000 100%);
   background-image: -moz-linear-gradient(top left, #6E3300 0%, #000000 100%);
   background-image: -webkit-linear-gradient(top left, #6E3300 0%, #000000 100%);
@@ -22,9 +23,11 @@
 }
 
 .mozart-header h1 {
+  font-family: 'IM Fell English SC', serif;
   color: #fff;
 }
 .mozart-header p {
+  font-family: 'IM Fell English SC', serif;
   font-weight: 300;
   line-height: 1.5;
 }
@@ -32,8 +35,14 @@
   position: relative;
 }
 
-.placeholder {
-  height: 50px;
+.navbar-brand {
+  font-family: 'IM Fell English SC', serif;
+}
+.placeholder1 {
+  height: 60px;
+}
+.placeholder2 {
+  height: 10px;
 }
 @media (min-width: 768px) {
   .mozart-header {

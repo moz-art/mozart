@@ -41,21 +41,23 @@
         </div>
       </div>
     </header>
-    <div class="placeholder"></div>
-    <!-- STEP 0 loading -->
-    <div class="panel panel-primary step-0">
-      <div class="panel-heading">Loading</div>
-      <div class="panel-body">
-        <img class="app-loading" src="../images/loading.gif"/>
-      </div>
-    </div>
+    <div class="placeholder1"></div>
     <div class="mozart-header">
       <div class="container">
         <h1>Mozart</h1>
         <p>Being a conductor instantly!
       </div>
     </div>
+    <div class="placeholder2"></div>
     <div class="container">
+      <!-- STEP 0 loading -->
+      <div class="panel panel-primary step-0">
+        <div class="panel-heading">Loading</div>
+        <div class="panel-body">
+          <img class="app-loading" src="../images/loading.gif"/>
+        </div>
+      </div>
+
       <!-- STEP 1 -->
       <div class="panel panel-primary step-1">
         <div class="panel-heading">Step 1: Please Choose a Song</div>
@@ -102,10 +104,20 @@
           </div>
         </div>
       </div>
-      <canvas id="canvas" height="300" width="800"></canvas>
 
       <div class="panel panel-primary step-4">
-        <h1 id="playingTitle">Music start!</h1>
+        <div class="panel-heading">Music start!</div>
+        <div class="panel-body">
+          <p>Now playing</p>
+          <h1 id="playingTitle">Title</h1>
+        </div>
+      </div>
+
+      <div class="panel panel-primary" id="canvas-container">
+        <div class="panel-heading">Shake your device to conduct!</div>
+        <div class="panel-body">
+          <canvas id="canvas" height="300" width="800"></canvas>
+        </div>
       </div>
     </div>
   </body>

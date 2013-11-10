@@ -50,6 +50,8 @@ function handleGroupMessage(ctrl) {
     }, 1000);
   } else if (ctrl.action === 'speed') {
     rendering(ctrl.data);
+  } else if (ctrl.action === 'conductorJoined') {
+    $('#canvas-container').show();
   }
 }
 
@@ -176,7 +178,6 @@ function readyToGo() {
   if (joinToOthers) {
     $('.step-' + currentStep).hide();
     currentStep = 2;
-    debugger;
     $('#groupNumber').text(groupID);
     nextStep();
   } else {
@@ -185,20 +186,26 @@ function readyToGo() {
 }
 
 function nextStep() {
+  if (currentStep >= 1) {
+    $('.mozart-header').hide('fast');
+  }
   $('.step-' + currentStep++).hide('fast');
+  if (currentStep == 3 && !joinToOthers)
+    currentStep++;
   $('.step-' + currentStep).show('fast');
 }
 
 function init() {
   hideAll();
   canvas = document.getElementById('canvas');
+  $('#canvas-container').hide();
   initSongChooser();
   uiInited = true;
   readyToGo();
 }
 
 function hideAll() {
-  for(var i = 1; i < 4; i++) {
+  for(var i = 1; i < 5; i++) {
     $('.step-' + i).hide();
   }
 }
@@ -286,6 +293,7 @@ function joinGroup(id) {
 
 function startToPlay() {
   console.log('start to player song now...');
+  $('#playingTitle').text(choosedMIDI);
   nextStep();
   activePlayer.replay();
 }
