@@ -185,6 +185,9 @@ if (window.AudioContext) (function () {
 		//console.log("moz-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
 		//			  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
 		//			  MIDI.GeneralMIDI.byId[instrument].sustainable);
+		if (sources[channel + "" + note]) {
+			return;	
+		}
 		var source = ctx.createBufferSource();
 		sources[channel + "" + note] = source;
 		source.buffer = audioBuffers[instrument + "" + note];
@@ -331,6 +334,9 @@ if (window.webkitAudioContext) (function () {
 		//console.log("webkit-start:" + MIDI.GeneralMIDI.byId[instrument].id + ';' +
 		//	  (noteName[note % 12] + (Math.floor(note / 12) - 2)) + ';' +
 		//	  MIDI.GeneralMIDI.byId[instrument].sustainable);
+		if (sources[channel + "" + note]) {
+			return;	
+		}
 		var source = ctx.createBufferSource();
 		sources[channel + "" + note] = source;
 		source.buffer = audioBuffers[instrument + "" + note];
@@ -359,6 +365,7 @@ if (window.webkitAudioContext) (function () {
 		source.gain.linearRampToValueAtTime(1, delay);
 		source.gain.linearRampToValueAtTime(0, delay + 0.2);
 		source.noteOff(delay + 0.3);
+		delete sources[channel + "" + note];
 		return source;
 	};
 
