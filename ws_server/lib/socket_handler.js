@@ -72,11 +72,13 @@ SocketHandler.prototype = {
         response = {
           event: this.data.event,
           result: true
-        },
-        clientArray = this._getClientIdArrayByGroup(this.ws.groups, groupId);
-        clientArray.splice(clientArray.indexOf(this.client), 1);
-        trackArray = this._getTrackIdArrayByMusic(tracksManifest.data, this.groupSongs[groupId]),
-        trackMap = this._magicAsign(clientArray, trackArray);
+        };
+
+    var clientArray = [].concat(this._getClientIdArrayByGroup(this.ws.groups, groupId));
+    clientArray.splice(clientArray.indexOf(this.client.id), 1);
+    console.log('conductor id: ' + this.client.id);
+    var trackArray = this._getTrackIdArrayByMusic(tracksManifest.data, this.groupSongs[groupId]);
+    var trackMap = this._magicAsign(clientArray, trackArray);
     // Send tracks manifest.
     this.ws.sendMessageToGroup(groupId, JSON.stringify({
       event: 'tracksManifest',
