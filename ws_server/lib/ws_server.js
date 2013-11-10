@@ -26,9 +26,13 @@ WebSocketServer.prototype = {
       }.bind(this));
 
       client.on('close', function() {
-        console.log('The client ' + client.id + ' is closed.');
         // DOTO: remove the client from the group.
-      });
+        console.log('The client ' + client.id + ' is closed.');
+        if (this.getActiveClientsNumberByGroup(client.groupId) === 0) {
+          socketHandler.garbageCollection(client.groupId);
+          console.log(client.groupId + ' group is removed.');
+        }
+      }.bind(this));
     }.bind(this));
   },
 

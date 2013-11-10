@@ -35,6 +35,10 @@ SocketHandler.prototype = {
     this.eventEmitter.emit(data.event);
   },
 
+  garbageCollection: function(groupId) {
+    this.gameEngine.cleanConnectionByGroup(groupId);
+  },
+
   _getClientId: function() {
     var response = {
       event: this.data.event,

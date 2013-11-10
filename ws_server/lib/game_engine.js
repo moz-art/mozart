@@ -13,6 +13,13 @@ GameEngine.prototype = {
     return this.groups[groupId].score;
   },
 
+  // Release the groups not connected.
+  cleanConnectionByGroup: function(groupId) {
+    if (this.groups[groupId]) {
+      delete this.groups[groupId];
+    }
+  },
+
   _countScore: function(groupId) {
     const GOOD_SPEED = 1,
           PERFECT_SCORE = 100;
