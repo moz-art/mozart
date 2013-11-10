@@ -15,7 +15,7 @@ GameEngine.prototype = {
 
   _countScore: function(groupId) {
     const GOOD_SPEED = 1,
-          PERFECT_SCORE = 99999999;
+          PERFECT_SCORE = 100;
     var speed = this.data[groupId],
         getScore = 0,
         speedDiff = 0;
@@ -29,7 +29,7 @@ GameEngine.prototype = {
     if (speedDiff === 0) {
       getScore = PERFECT_SCORE;
     } else {
-      getScore = Math.round(1 / speedDiff) * 10;
+      getScore = Math.round(1 / speedDiff) ;
     }
     console.log('getScore: ' + getScore);
     this.groups[groupId].score += getScore;

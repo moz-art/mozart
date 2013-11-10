@@ -12,6 +12,7 @@ var canvas;
 var speed;
 var joinToOthers = false;
 var allTracks;
+var score;
 
 /**
  * start of socket
@@ -102,6 +103,12 @@ function handleTrackList(list) {
   });
 }
 
+function handleScore(data) {
+  if (score) {
+    score.innerHTML = data;
+  }
+}
+
 function handleMessage(msg) {
   var data = JSON.parse(msg.data);
 
@@ -126,6 +133,8 @@ function handleMessage(msg) {
     allTracks = data.data.data;
   } else if (data.event === 'getGroupSpeed') {
     handleGroupSpeed(data.data);
+  } else if (data.event === 'showGameScore') {
+    handleScore(data.data);
   }
  }
 
@@ -207,6 +216,7 @@ function init() {
   hideAll();
   canvas = document.getElementById('canvas');
   speed = document.querySelector('#speed-dashboard > div');
+  score = document.querySelector('.score > div');
   $('#canvas-container').hide();
   initSongChooser();
   uiInited = true;
