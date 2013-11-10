@@ -236,9 +236,9 @@ SocketHandler.prototype = {
         };
 
     if (this.groupSpeed[groupId]) {
-      response.data.speed = this.groupSpeed[groupId];
+      this.groupSpeed[groupId] = response.data.speed;
     } else {
-      response.data.speed = 1;
+      this.groupSpeed[groupId] = 1;
     }
     response.data.responseTime = new Date().getTime();
     this.client.send(JSON.stringify(response));
