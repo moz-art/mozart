@@ -54,6 +54,11 @@ function handleGroupMessage(ctrl) {
   } else if (ctrl.action === 'speed') {
     rendering(ctrl.data);
   } else if (ctrl.action === 'conductorJoined') {
+    var href = window.location.href;
+    href = href.substring(0, href.lastIndexOf('/player/')) +
+           '/player/#' + groupID;
+    $('.group-link').get(0).href = href;
+    $('.group-link').text(href);
     if(!joinToOthers)
       nextStep();
     $('#canvas-container').show();
