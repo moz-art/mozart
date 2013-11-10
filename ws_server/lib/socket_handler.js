@@ -67,7 +67,8 @@ SocketHandler.prototype = {
           event: this.data.event,
           result: true
         },
-        clientArray = this._getClientIdArrayByGroup(this.ws.groups, groupId),
+        clientArray = this._getClientIdArrayByGroup(this.ws.groups, groupId);
+        clientArray.splice(clientArray.indexOf(this.client), 1);
         trackArray = this._getTrackIdArrayByMusic(tracksManifest.data, this.groupSongs[groupId]),
         trackMap = this._magicAsign(clientArray, trackArray);
     // Send tracks manifest.
