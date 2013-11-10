@@ -193,7 +193,7 @@ SocketHandler.prototype = {
 
     this.ws.sendMessageToGroup(groupId, JSON.stringify(message));
     this.client.send(JSON.stringify(response));
-    console.log('Client ' + this.client.id + ' send message to ' + groupId + ' group: ' + JSON.stringify(message));
+    //console.log('Client ' + this.client.id + ' send message to ' + groupId + ' group: ' + JSON.stringify(message));
   },
 
   _playerIsReady: function() {

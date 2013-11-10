@@ -21,8 +21,7 @@ GameEngine.prototype = {
   },
 
   _countScore: function(groupId) {
-    const GOOD_SPEED = 1,
-          PERFECT_SCORE = 100;
+    const GOOD_SPEED = 1;
     var speed = this.data[groupId],
         getScore = 0,
         speedDiff = 0;
@@ -32,12 +31,13 @@ GameEngine.prototype = {
       this.groups[groupId].score = 0;
     }
 
+    // XXX: fix me.
+    // No body could set the speed as 1 to get perfect score.
     speedDiff = Math.abs(GOOD_SPEED - speed);
-    if (speedDiff === 0) {
-      getScore = PERFECT_SCORE;
-    } else {
+    if (speedDiff !== 0 && speedDiff <= 0.1) {
       getScore = Math.round(1 / speedDiff) ;
     }
+
     console.log('getScore: ' + getScore);
     this.groups[groupId].score += getScore;
   }
