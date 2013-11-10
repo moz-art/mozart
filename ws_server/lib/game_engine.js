@@ -33,9 +33,14 @@ GameEngine.prototype = {
 
     // XXX: fix me.
     // No body could set the speed as 1 to get perfect score.
+    /*
     speedDiff = Math.abs(GOOD_SPEED - speed);
     if (speedDiff !== 0 && speedDiff <= 0.1) {
-      getScore = Math.round(1 / speedDiff) ;
+      getScore = Math.round(1 / speedDiff);
+    }
+    */
+    if (speed < 0.7) {
+      getScore = Math.round(1 / speed);
     }
 
     console.log('getScore: ' + getScore);
