@@ -1,4 +1,5 @@
-var tracksManifest = require('./tracks_manifest.js');
+var EventEmitter = require('events').EventEmitter,
+    tracksManifest = require('./tracks_manifest.js');
 
 function SocketHandler(ws) {
   this.ws = ws;
@@ -6,41 +7,26 @@ function SocketHandler(ws) {
   this.data = {};
   this.groupSongs = {};
   this.groupReady = {};
+  this.eventEmitter = new EventEmitter();
+  this.init();
 }
 
 SocketHandler.prototype = {
+  init: function() {
+    this.eventEmitter.on('getClientId', this._getClientId.bind(this));
+    this.eventEmitter.on('generateGroup', this._generateGroup.bind(this));
+    this.eventEmitter.on('groupIsReady', this._groupIsReady.bind(this));
+    this.eventEmitter.on('joinGroup', this._joinGroup.bind(this));
+    this.eventEmitter.on('setGroupSong', this._setGroupSong.bind(this));
+    this.eventEmitter.on('sendMessageToGroup', this._sendMessageToGroup.bind(this));
+    this.eventEmitter.on('playerIsReady', this._playerIsReady.bind(this));
+    this.eventEmitter.on('ntp', this._ntp.bind(this));
+  },
+
   handle: function(client, data) {
     this.client = client;
     this.data = data;
-
-    switch (data.event) {
-      case 'getClientId':
-        this._getClientId();
-        break;
-      case 'generateGroup':
-        this._generateGroup();
-        break;
-      case 'groupIsReady':
-        this._groupIsReady();
-        break;
-      case 'joinGroup':
-        this._joinGroup();
-        break;
-      case 'setGroupSong':
-        this._setGroupSong();
-        break;
-      case 'sendMessageToGroup':
-        this._sendMessageToGroup();
-        break;
-      case 'playerIsReady':
-        this._playerIsReady();
-        break;
-      case 'ntp':
-        this._ntp();
-        break;
-      default:
-        console.log('No such handler.');
-    }
+    this.eventEmitter.emit(data.event);
   },
 
   _getClientId: function() {
