@@ -160,6 +160,11 @@ function rendering (data) {
     var newval = 800 - ((speedValue - MobileMotion.TARGET_MIN_SPEED) /
       (MobileMotion.TARGET_MAX_SPEED - MobileMotion.TARGET_MIN_SPEED) * 800);
     speed.style.width = newval + 'px';
+    var red = Math.floor(Math.abs((newval - 400) / 400 * 255));
+    var green = 255 - red;
+    var color = 'rgb(' + red + ', ' + green + ', ' + parseInt('50', 10) + ')';
+    console.log("color: " + color);
+    speed.style.backgroundColor = color;
   }
 }
 

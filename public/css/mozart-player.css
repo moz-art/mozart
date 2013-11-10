@@ -104,7 +104,7 @@
 }
 
 #speed-dashboard {
-  background-color: #888a85;
+  background-color: #babdb6;
   background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.7) 10px, rgba(255,255,255,.7) 20px);
   width: 800px;
   height: 3rem;
@@ -112,8 +112,8 @@
 }
 
 #speed-dashboard > div {
-  background-color: #204a87;
-  transition: 0.5s width;
+  background-color: #00ff50;
+  transition: width 0.5s, background-color 0.5s;
   background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.7) 10px, rgba(255,255,255,.7) 20px);
   height: 3rem;
   width: 0;
