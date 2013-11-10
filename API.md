@@ -65,3 +65,15 @@ See the data format in the /ws_server/lib/tracks_manifest.js.
 @param {String} { event: 'ntp', data: client time }.
 @response {String} { event: 'ntp', data: { clientTime: client time, serverTime: server time } , result: true }.
 ```
+
+## setGroupSpeed
+```
+@param {String} { event: 'setGroupSpeed', data: conductor speed }.
+@response {String} { event: 'setGroupSpeed', result: true }.
+```
+
+## getGroupSpeed
+```
+@param {String} { event: 'getGroupSpeed', data: client time }.
+@response {String} { event: 'getGroupSpeed', data: { clientTime: client time triggerTime: trigger time, responseTime: response time, speed: conductor speed } , result: true }.
+```

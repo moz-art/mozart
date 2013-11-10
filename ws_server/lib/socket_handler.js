@@ -1,3 +1,4 @@
+const READY_STATE_OPEN = 1;
 var EventEmitter = require('events').EventEmitter,
     tracksManifest = require('./tracks_manifest.js');
 
@@ -6,6 +7,7 @@ function SocketHandler(ws) {
   this.client = {};
   this.data = {};
   this.groupSongs = {};
+  this.groupSpeed = {};
   this.groupReady = {};
   this.eventEmitter = new EventEmitter();
   this.init();
@@ -21,6 +23,8 @@ SocketHandler.prototype = {
     this.eventEmitter.on('sendMessageToGroup', this._sendMessageToGroup.bind(this));
     this.eventEmitter.on('playerIsReady', this._playerIsReady.bind(this));
     this.eventEmitter.on('ntp', this._ntp.bind(this));
+    this.eventEmitter.on('setGroupSpeed', this._setGroupSpeed.bind(this));
+    this.eventEmitter.on('getGroupSpeed', this._getGroupSpeed.bind(this));
   },
 
   handle: function(client, data) {
@@ -75,14 +79,16 @@ SocketHandler.prototype = {
 
     // Send specified track info to each client.
     for (var client in trackMap) {
-      this.ws.groups[groupId][client].send(JSON.stringify({
-        event: 'trackList',
-        data: {
-          song: this.groupSongs[groupId],
-          tracks: trackMap[client] 
-        },
-        result: true
-      }));
+      if (this.ws.groups[groupId][client].readyState === READY_STATE_OPEN) {
+        this.ws.groups[groupId][client].send(JSON.stringify({
+          event: 'trackList',
+          data: {
+            song: this.groupSongs[groupId],
+            tracks: trackMap[client] 
+          },
+          result: true
+        }));
+      }
     }
     this.client.send(JSON.stringify(response));
   },
@@ -205,6 +211,37 @@ SocketHandler.prototype = {
       }));
       console.log('Send allPlayersReady message.');
     }
+  },
+
+  _setGroupSpeed: function() {
+    var groupId = this.client.groupId,
+        response = {
+          event: this.data.event,
+          result: true
+        };
+    this.groupSpeed[groupId] = this.data.data;
+    this.client.send(JSON.stringify(response));
+  },
+
+  _getGroupSpeed: function() {
+    var triggerTime = new Date().getTime();
+        groupId = this.client.groupId,
+        response = {
+          event: this.data.event,
+          data: {
+            clientTime: this.data.data,
+            triggerTime: triggerTime
+          },
+          result: true
+        };
+
+    if (this.groupSpeed[groupId]) {
+      response.data.speed = this.groupSpeed[groupId];
+    } else {
+      response.data.speed = 1;
+    }
+    response.data.responseTime = new Date().getTime();
+    this.client.send(JSON.stringify(response));
   },
 
   _ntp: function() {}
