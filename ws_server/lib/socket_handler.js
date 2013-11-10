@@ -235,7 +235,7 @@ SocketHandler.prototype = {
           result: true
         };
 
-    if (this.groupSpeed[groupId]) {
+    if (this.groupSpeed[groupId] && response.data.speed) {
       this.groupSpeed[groupId] = response.data.speed;
     } else {
       this.groupSpeed[groupId] = 1;
