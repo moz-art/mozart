@@ -96,6 +96,8 @@ function handleTrackList(list) {
     });
     channels.push(parseInt(track));
   });
+  nextStep();
+  $('.playingTitle').text(choosedMIDI);
   downloadMIDI(choosedMIDI, function() {
     initMIDIjs(instruments, channels);
   });
@@ -198,7 +200,6 @@ function nextStep() {
 function init() {
   hideAll();
   canvas = document.getElementById('canvas');
-  $('#canvas-container').hide();
   initSongChooser();
   uiInited = true;
   readyToGo();
@@ -208,6 +209,8 @@ function hideAll() {
   for(var i = 1; i < 5; i++) {
     $('.step-' + i).hide();
   }
+  $('#canvas-container').hide();
+  $('.loading_stub').hide();
 }
 
 function initSongChooser() {
@@ -293,8 +296,8 @@ function joinGroup(id) {
 
 function startToPlay() {
   console.log('start to player song now...');
-  $('#playingTitle').text(choosedMIDI);
-  nextStep();
+  $('.loading_stub').show().fadeTo('slow',0);
+  $('#playStatus').text('Now playing...');
   activePlayer.replay();
 }
 

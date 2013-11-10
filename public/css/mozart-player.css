@@ -19,7 +19,7 @@
   background-image: -ms-linear-gradient(top left, #6E3300 0%, #000000 100%);
   background-image: -moz-linear-gradient(top left, #6E3300 0%, #000000 100%);
   background-image: -webkit-linear-gradient(top left, #6E3300 0%, #000000 100%);
-  background-image: linear-gradient(to bottom right, #6E3300 0%, #000000 100%);;
+  background-image: linear-gradient(to bottom right, #6E3300 0%, #000000 100%);
 }
 
 .mozart-header h1 {
@@ -55,6 +55,27 @@
 }
 .placeholder2 {
   height: 10px;
+}
+.loading_stub {
+  position: fixed;
+  top: 60px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-image: -ms-linear-gradient(top left, #6E3300 0%, #000000 100%);
+  background-image: -moz-linear-gradient(top left, #6E3300 0%, #000000 100%);
+  background-image: -webkit-linear-gradient(top left, #6E3300 0%, #000000 100%);
+  background-image: linear-gradient(to bottom right, #6E3300 0%, #000000 100%);
+}
+.loading_stub > .container {
+  display: table;
+  height: 100%;
+}
+.loading_stub > .container > * {
+  display: table-row;
+  text-align: center;
+  font-family: 'IM Fell English SC', serif !important;
+  color: white;
 }
 @media (min-width: 768px) {
   .mozart-header {
