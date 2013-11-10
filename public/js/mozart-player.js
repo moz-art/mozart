@@ -74,11 +74,8 @@ function handleGroupSpeed(data) {
   var processTime = data.responseTime - data.triggerTime;
   NTP.parseServerResponse(clientTime,
                           clientTime - data.triggerTime - processTime);
-  console.log('1change speed: ' + data.speed);
   if (data.speed && activePlayer && activePlayer.getSpeed() !== data.speed) {
-    console.log('2change speed: ' + data.speed);
     scheduleNextTimeSpan(function() {
-      console.log('3change speed: ' + data.speed);
       activePlayer.changeSpeed(data.speed);
     }, 1000);
   }
