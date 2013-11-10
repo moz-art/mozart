@@ -1,5 +1,5 @@
 const HARDCODE_HOSTNAME;
-const SERVER = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':8888';
+const SERVER = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':80';
 var choosedMIDI;
 var socket;
 var uiInited;

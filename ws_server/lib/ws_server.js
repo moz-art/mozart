@@ -6,9 +6,10 @@ var Server = require('ws').Server,
     SocketHandler = require('./socket_handler'),
     socketHandler;
 
-function WebSocketServer(port) {
+function WebSocketServer(port, server) {
   this.port = port || DEFAULT_PORT;
-  this.server = new Server({ port: this.port });
+  this.server = server ? new Server({server: server}) : 
+                         new Server({ port: this.port });
   this.groups = {};
   socketHandler = new SocketHandler(this);
   this._init();

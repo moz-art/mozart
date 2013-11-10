@@ -3,16 +3,16 @@ require('nko')('sx83ZcpGo9-B20-Z');
 
 const IS_PRODUCTION = true;
 var express = require('express'),
-    childProcess = require('child_process'),
-    app = express();
+    http = require('http'),
+    app = express(),
+    WebSocketServer = require('./ws_server/lib/ws_server');
 
 app.use(express.static(__dirname + '/public'));
-app.listen(80);
+var server = http.createServer(app);
+server.listen(80);
 
-// Start the websocket server.
-if (IS_PRODUCTION) {
-  childProcess.spawn('node', ['./ws_server/index']);
-}
+// start websocket server
+wsServer = new WebSocketServer(null, server);
 
 
 // var isProduction = (process.env.NODE_ENV === 'production');
