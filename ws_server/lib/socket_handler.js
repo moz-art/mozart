@@ -1,6 +1,7 @@
 const READY_STATE_OPEN = 1;
 var EventEmitter = require('events').EventEmitter,
-    tracksManifest = require('./tracks_manifest.js');
+    tracksManifest = require('./tracks_manifest'),
+    GameEngine = require('./game_engine');
 
 function SocketHandler(ws) {
   this.ws = ws;
@@ -10,6 +11,7 @@ function SocketHandler(ws) {
   this.groupSpeed = {};
   this.groupReady = {};
   this.eventEmitter = new EventEmitter();
+  this.gameEngine = new GameEngine(this.groupSpeed);
   this.init();
 }
 
@@ -223,6 +225,17 @@ SocketHandler.prototype = {
     if (this.data.data) {
       this.groupSpeed[groupId] = this.data.data;
     }
+
+    // XXX: Not clear code.
+    // Send score once set group speed.
+    this.ws.sendMessageToGroup(groupId, JSON.stringify({
+      event: 'showGameScore',
+      data: this.gameEngine.getGameScoreByGroup(groupId),
+      result: true,
+    }));
+    console.log('Score of groupId group: ' +
+                this.gameEngine.getGameScoreByGroup(groupId));
+
     this.client.send(JSON.stringify(response));
   },
 

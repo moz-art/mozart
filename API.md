@@ -77,3 +77,8 @@ See the data format in the /ws_server/lib/tracks_manifest.js.
 @param {String} { event: 'getGroupSpeed', data: client time }.
 @response {String} { event: 'getGroupSpeed', data: { clientTime: client time triggerTime: trigger time, responseTime: response time, speed: conductor speed } , result: true }.
 ```
+
+## showGameScore
+```
+@response {String} { event: 'showGameScore', data: score, result: true }.
+```
