@@ -21,7 +21,7 @@ window.addEventListener('load', function() {
       ws.send(JSON.stringify({ event: 'groupIsReady' }));
       document.getElementById('progress').classList.remove('hidden');
     } else if (evt.target.textContent === 'Play') {
-      document.getElementById('progress').classList.add('hidden');
+      evt.target.setAttribute('disabled', true);
       ws.send(JSON.stringify({
         event: 'sendMessageToGroup',
         data: {action: 'play'}
@@ -42,6 +42,7 @@ window.addEventListener('load', function() {
     var ret = JSON.parse(evt.data);
     if (ret.event === 'allPlayersReady' && ret.result) {
       var btn = document.getElementById('primary-btn')
+      document.getElementById('progress').classList.add('hidden');
       btn.removeAttribute('disabled', true);
       btn.innerHTML = 'Play';
 
