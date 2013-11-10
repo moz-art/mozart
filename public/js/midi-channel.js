@@ -4,7 +4,11 @@ function MIDIChannel(idx) {
 }
 
 MIDIChannel.prototype.noteOn = function(note, velocity, delay) {
-  MIDI.noteOn(this.channelIndex, note, velocity, delay);
+  if (!velocity) {
+    this.noteOff(note, delay)
+  } else {
+    MIDI.noteOn(this.channelIndex, note, velocity, delay);  
+  }
 };
 
 MIDIChannel.prototype.noteOff = function(note, delay) {
