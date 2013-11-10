@@ -232,6 +232,7 @@ function nextStep() {
 
 function init() {
   hideAll();
+  compabilityCheck();
   canvas = document.getElementById('canvas');
   speed = document.querySelector('#speed-dashboard > div');
   score = document.querySelector('.score > div');
@@ -340,6 +341,15 @@ function startToPlay() {
   });
   $('#playStatus').text('Now playing...');
   activePlayer.replay();
+}
+
+function compabilityCheck() {
+  if (jQuery.browser.chrome && parseInt(jQuery.browser.version) >= 29 ||
+      jQuery.browser.mozilla && parseInt(jQuery.browser.version) >= 25) {
+    $('#browserCompability').removeClass('alert');
+  } else {
+    $('#browserCompability').addClass('alert');
+  }
 }
 
 initSocket();

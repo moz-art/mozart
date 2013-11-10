@@ -118,7 +118,18 @@
   height: 3rem;
   width: 0;
 }
+#browserCompability {
+  width: 100%;
+  text-align: center;
+  bottom: 0;
+  position: absolute;
 
+}
+#browserCompability.alert{
+  color: red;
+  font-size: 15px;
+
+}
 @media (min-width: 768px) {
   .mozart-header {
     font-size: 21px;
