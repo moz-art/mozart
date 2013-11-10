@@ -29,6 +29,15 @@ var TracksManifest = {
 
     'turkish_match.mid': {
       '01': ['acoustic_grand_piano']
+    },
+
+    'StarWars2.mid': {
+      '01': ['acoustic_grand_piano'],
+      '02': ['acoustic_grand_piano'],
+      '03': ['acoustic_grand_piano'],
+      '04': ['acoustic_grand_piano'],
+      '05': ['acoustic_grand_piano'],
+      '06': ['acoustic_grand_piano'],
     }
   }
 };
