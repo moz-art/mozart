@@ -245,7 +245,7 @@ function init() {
 }
 
 function hideAll() {
-  for(var i = 1; i < 6; i++) {
+  for(var i = 1; i < 7; i++) {
     $('.step-' + i).hide();
   }
   $('#canvas-container').hide();
