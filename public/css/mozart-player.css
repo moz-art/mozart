@@ -56,6 +56,7 @@
 .placeholder2 {
   height: 10px;
 }
+
 .loading_stub {
   position: fixed;
   top: 60px;
@@ -77,6 +78,23 @@
   font-family: 'IM Fell English SC', serif !important;
   color: white;
 }
+
+#speed-dashboard {
+  background-color: #888a85;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.7) 10px, rgba(255,255,255,.7) 20px);
+  width: 800px;
+  height: 3rem;
+  margin-left: 2rem;
+}
+
+#speed-dashboard > div {
+  background-color: #204a87;
+  transition: 0.5s width;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.7) 10px, rgba(255,255,255,.7) 20px);
+  height: 3rem;
+  width: 0;
+}
+
 @media (min-width: 768px) {
   .mozart-header {
     font-size: 21px;

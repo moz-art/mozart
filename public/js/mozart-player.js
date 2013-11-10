@@ -9,6 +9,7 @@ var groupID = '';
 var midiFile;
 var activePlayer;
 var canvas;
+var speed;
 var joinToOthers = false;
 var allTracks;
 
@@ -24,7 +25,7 @@ function initSocket() {
         groupID = href.substring(href.lastIndexOf('#') + 1);
         joinGroup(groupID);
       } else {
-        requestGroupID();  
+        requestGroupID();
       }
       scheduleSyncGroupSpeed();
     };
@@ -44,6 +45,7 @@ function sendMessage(msg) {
 
 function handleGroupMessage(ctrl) {
   if (ctrl.action === 'play') {
+    speed.style.width = '400px';
     console.log('play');
     scheduleNextTimeSpan(function() {
       startToPlay();
@@ -79,7 +81,7 @@ function handleGroupSpeed(data) {
       console.log('3change speed: ' + data.speed);
       activePlayer.changeSpeed(data.speed);
     }, 1000);
-  }  
+  }
   scheduleSyncGroupSpeed();
 }
 
@@ -146,6 +148,13 @@ function rendering (data) {
   ctx.beginPath();
   ctx.arc(data.seq, data.threshold * 10, 1, 0, 2*Math.PI);
   ctx.fill();
+
+  if (data.speed) {
+    var speedValue = Math.max(Math.min(data.speed, MobileMotion.TARGET_MAX_SPEED), MobileMotion.TARGET_MIN_SPEED);
+    var newval = 800 - ((speedValue - MobileMotion.TARGET_MIN_SPEED) /
+      (MobileMotion.TARGET_MAX_SPEED - MobileMotion.TARGET_MIN_SPEED) * 800);
+    speed.style.width = newval + 'px';
+  }
 }
 
 /**
@@ -200,6 +209,8 @@ function nextStep() {
 function init() {
   hideAll();
   canvas = document.getElementById('canvas');
+  speed = document.querySelector('#speed-dashboard > div');
+  $('#canvas-container').hide();
   initSongChooser();
   uiInited = true;
   readyToGo();
@@ -291,7 +302,7 @@ function requestGroupID() {
 }
 
 function joinGroup(id) {
- sendMessage({'event': 'joinGroup', 'data': id}); 
+ sendMessage({'event': 'joinGroup', 'data': id});
 }
 
 function startToPlay() {
