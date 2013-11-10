@@ -68,7 +68,8 @@ window.addEventListener('load', function() {
         var speed = MobileMotion.record(vector);
         seq = (seq + 1) % 800;
         if (speed && parser.getEngine().name === 'WebKit') {
-          speed = speed / 2;
+          MobileMotion.MAX_SPEED = 2000;
+          MobileMotion.MIN_SPEED = 300;
         }
         ws.send(JSON.stringify({
           event: 'setGroupSpeed',

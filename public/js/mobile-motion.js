@@ -5,7 +5,6 @@ var MobileMotion = {
   MIN_SPEED: 100,
   TARGET_MAX_SPEED: 2,
   TARGET_MIN_SPEED: 0.5,
-  max: 15,
   queue: [],
   speedQueue: [],
 
@@ -25,10 +24,6 @@ var MobileMotion = {
   },
 
   record: function mm_record(val) {
-    if (val > this.max) {
-      this.max = val;
-    }
-
     if (val > this.threshold && !this.time) {
       this.time = new Date();
       if (this.prevTime) {
