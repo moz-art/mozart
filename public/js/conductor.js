@@ -40,6 +40,12 @@ window.addEventListener('load', function() {
       return;
     }
     var ret = JSON.parse(evt.data);
+    if (ret.event === 'joinGroup' && ret.result) {
+      ws.send(JSON.stringify({
+        event: 'sendMessageToGroup',
+        data: { action: 'conductorJoined' }
+      }));
+    }
     if (ret.event === 'allPlayersReady' && ret.result) {
       var btn = document.getElementById('primary-btn')
       document.getElementById('progress').classList.add('hidden');
