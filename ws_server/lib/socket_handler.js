@@ -219,7 +219,9 @@ SocketHandler.prototype = {
           event: this.data.event,
           result: true
         };
-    this.groupSpeed[groupId] = this.data.data;
+    if (this.data.data) {
+      this.groupSpeed[groupId] = this.data.data;
+    }
     this.client.send(JSON.stringify(response));
   },
 
@@ -235,11 +237,12 @@ SocketHandler.prototype = {
           result: true
         };
 
-    if (this.groupSpeed[groupId] && response.data.speed) {
-      this.groupSpeed[groupId] = response.data.speed;
-    } else {
+    console.log('this.groupSpeed[groupId]: ' + this.groupSpeed[groupId]);
+    // If we didn't set speed before, we set it as 1.
+    if (!this.groupSpeed[groupId]) {
       this.groupSpeed[groupId] = 1;
     }
+    response.data.speed = this.groupSpeed[groupId];
     response.data.responseTime = new Date().getTime();
     this.client.send(JSON.stringify(response));
   },
