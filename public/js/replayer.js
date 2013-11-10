@@ -11,6 +11,7 @@ function Replayer(midiFile, channelClass) {
   var startTime;
   var stop = false;
   var activeChannels = null;
+  var started = false;
   
   for (var i = 0; i < midiFile.tracks.length; i++) {
     trackStates[i] = {
@@ -145,6 +146,7 @@ function Replayer(midiFile, channelClass) {
   }
   
   function replay() {
+    started = true;
     scheduleNextTimer();
   }
 
@@ -153,7 +155,7 @@ function Replayer(midiFile, channelClass) {
   }
 
   function changeSpeed(spd) {
-  	if (spd < 0.1) {
+  	if (spd < 0.1 || !started) {
   		return;
   	}
   	

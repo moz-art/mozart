@@ -36,7 +36,7 @@ function initSocket() {
     };
     socket.onmessage = handleMessage;
     socket.onclose = function() {
-      alert('server is closed, please reload');
+      
     };
 }
 
@@ -177,6 +177,7 @@ function initMIDIjs(instruments, channels) {
       activePlayer.finishedCallback = function() {
         activePlayer = null;
         nextStep();
+        stopPlaying();
       };
       console.log('soundfont is downloaded...');
       activePlayer.setActiveChannels(channels);
@@ -184,6 +185,11 @@ function initMIDIjs(instruments, channels) {
       sendMessage({'event': 'playerIsReady'});
     }
   });
+}
+
+function stopPlaying() {
+  socket.close();
+  $('#canvas-container').hide();
 }
 
 function readyToGo() {
@@ -218,6 +224,9 @@ function init() {
   speed = document.querySelector('#speed-dashboard > div');
   score = document.querySelector('.score > div');
   $('#canvas-container').hide();
+  $('.restart-button').click(function() {
+    window.location.reload();
+  });
   initSongChooser();
   uiInited = true;
   readyToGo();
