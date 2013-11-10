@@ -54,6 +54,8 @@ function handleGroupMessage(ctrl) {
   } else if (ctrl.action === 'speed') {
     rendering(ctrl.data);
   } else if (ctrl.action === 'conductorJoined') {
+    if(!joinToOthers)
+      nextStep();
     $('#canvas-container').show();
   }
 }
@@ -97,7 +99,6 @@ function handleTrackList(list) {
     channels.push(parseInt(track));
   });
   nextStep();
-  $('.playingTitle').text(choosedMIDI);
   downloadMIDI(choosedMIDI, function() {
     initMIDIjs(instruments, channels);
   });
@@ -188,6 +189,8 @@ function initMIDIjs(instruments, channels) {
       activePlayer.setActiveChannels(channels);
       console.log('channel configured')
       sendMessage({'event': 'playerIsReady'});
+      $('#playStatus').text(
+        'Load complete. Push play button on device once all players ready.');
     }
   });
 }
@@ -220,7 +223,11 @@ function nextStep() {
   $('.step-' + currentStep++).hide('fast');
   if (currentStep == 3 && !joinToOthers)
     currentStep++;
+  if (currentStep == 4 && joinToOthers) {
+    currentStep++;
+  }
   $('.step-' + currentStep).show('fast');
+  $('.playingTitle').text(choosedMIDI);
 }
 
 function init() {
@@ -328,7 +335,9 @@ function joinGroup(id) {
 
 function startToPlay() {
   console.log('start to player song now...');
-  $('.loading_stub').show().fadeTo('slow',0);
+  $('.loading_stub').show().fadeTo('slow', 0, function() {
+    $('.loading_stub').hide();
+  });
   $('#playStatus').text('Now playing...');
   activePlayer.replay();
 }

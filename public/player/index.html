@@ -103,18 +103,29 @@
         </div>
       </div>
 
-      <!-- Step 3 MIDI Player -->
+      <!-- Step 3 MIDI Instrument layer waiting -->
       <div class="panel panel-primary step-3">
         <div class="panel-heading">Instrument joined</div>
         <div class="panel-body">
           <div class="container">
             <h1 id="groupNumber">Mozart</h1>
-            You've joined to the group. Waiting for conductor.
+            You've joined to the group. Press ready button on conductor device once all instrument player joined.
+            <h1 class="playingTitle"></h1>
           </div>
         </div>
       </div>
 
+      <!-- Step 4 Wait for other instruments player -->
       <div class="panel panel-primary step-4">
+        <div class="panel-heading">Waiting for other instruments player</div>
+        <div class="panel-body">
+          <p>Press ready button on conductor device once all instrument player joined.</p>
+          <h1 class="playingTitle">Title</h1>
+        </div>
+      </div>
+
+      <!-- Step 5 Wait for play signal from conductor -->
+      <div class="panel panel-primary step-5">
         <div class="panel-heading">Ready for couduct!</div>
         <div class="panel-body">
           <p id='playStatus'>Now loading...</p>
