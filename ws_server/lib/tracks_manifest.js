@@ -44,6 +44,22 @@ var TracksManifest = {
       '10': ['synth_drum'],
       '11': ['string_ensemble_1'],
       '12': ['tremolo_strings']
+    },
+
+    'symphony_of_destiny.mid': {
+      '01': ['flute'],
+      '02': ['oboe'],
+      '03': ['clarinet'],
+      '04': ['bassoon'],
+      '05': ['french_horn'],
+      '06': ['trumpet'],
+      '07': ['timpani'],
+      '08': ['string_ensemble_1'],
+      '09': ['string_ensemble_1'],
+      '10': ['synth_drum'],
+      '11': ['string_ensemble_1'],
+      '12': ['string_ensemble_1'],
+      '13': ['string_ensemble_2'],
     }
   }
 };
