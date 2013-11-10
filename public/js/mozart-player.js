@@ -176,7 +176,7 @@ function initMIDIjs(instruments, channels) {
       activePlayer = Replayer(midiFile, MIDIChannel);
       activePlayer.finishedCallback = function() {
         activePlayer = null;
-        alert('finished, please reload to replay it.');
+        nextStep();
       };
       console.log('soundfont is downloaded...');
       activePlayer.setActiveChannels(channels);
@@ -224,7 +224,7 @@ function init() {
 }
 
 function hideAll() {
-  for(var i = 1; i < 5; i++) {
+  for(var i = 1; i < 6; i++) {
     $('.step-' + i).hide();
   }
   $('#canvas-container').hide();
