@@ -8,8 +8,6 @@ function join(groupId) {
 }
 
 window.addEventListener('load', function() {
-  var msg = document.getElementById('message');
-  msg.innerHTML = WS_URL;
   ws = new WebSocket(WS_URL);
   var seq = 0;
 
@@ -17,14 +15,19 @@ window.addEventListener('load', function() {
     groupId = window.location.hash.substr(1);
   }
 
-  document.querySelector('#join').addEventListener('click', function() {
-    groupId = document.querySelector('#group-id').value;
-    join(groupId);
+  document.getElementById('primary-btn').addEventListener('click', function(evt) {
+    if (evt.target.textContent === 'Ready') {
+      evt.target.setAttribute('disabled', true);
+      ws.send(JSON.stringify({ event: 'groupIsReady' }));
+      document.getElementById('progress').classList.remove('hidden');
+    } else if (evt.target.textContent === 'Play') {
+      document.getElementById('progress').classList.add('hidden');
+      ws.send(JSON.stringify({
+        event: 'sendMessageToGroup',
+        data: {action: 'play'}
+      }));
+    }
   });
-
-  document.querySelector('#ready').addEventListener('click', function() {
-    ws.send(JSON.stringify({ event: 'groupIsReady' }));
-  })
 
   ws.addEventListener('open', function() {
     if (groupId) {
@@ -38,10 +41,10 @@ window.addEventListener('load', function() {
     }
     var ret = JSON.parse(evt.data);
     if (ret.event === 'allPlayersReady' && ret.result) {
-      ws.send(JSON.stringify({
-        event: 'sendMessageToGroup',
-        data: {action: 'play'}
-      }));
+      var btn = document.getElementById('primary-btn')
+      btn.removeAttribute('disabled', true);
+      btn.innerHTML = 'Play';
+
       window.addEventListener('devicemotion', function(event) {
         if (!event.acceleration.x) {
           return;

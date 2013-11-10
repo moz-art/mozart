@@ -10,15 +10,20 @@
 </head>
 <body>
 <div class="container">
-	<div id="message"></div>
-	<form class="form-inline" role="form">
-	  <div class="form-group">
-	    <label class="sr-only" for="group-id">Group Code</label>
-	    <input type="text" class="form-control" id="group-id" placeholder="Enter group code">
-	  </div>
-	  <a id="join" href="#" class="btn btn-primary">join</a>
-	    <button id="ready" type="button" class="btn btn-primary">Ready</button>
-	</form>
+	<div id="header">
+		<h1><span></span>Mozart</h1>
+	</div>
+	<div id="content">
+		<div class="message">
+			<div class="center">You have # players</div>
+			<div id="progress" class="hidden progress progress-striped active">
+			  <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+			    <span class="sr-only">45% Complete</span>
+			  </div>
+			</div>
+			<div class="center"><button id="primary-btn" type="button" class="btn btn-primary">Ready</button></div></div>
+	</div>
+
 </div>
 <script src="../js/mobile-motion.js"></script>
 <script src="../js/conductor.js"></script>
