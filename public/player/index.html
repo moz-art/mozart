@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.1/flatly/bootstrap.min.css">
     <!-- Optional theme -->
     <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">-->
+    <link rel="stylesheet" href="../css/social-bar.css">
     <link rel="stylesheet" href="../css/mozart-player.css">
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -17,6 +18,8 @@
     <script src="../js/jasmid/midifile.js" type="text/javascript"></script>
     <!-- jquery module for qrcode -->
     <script src="../js/jquery.qrcode-0.7.0.min.js"></script>
+    <!-- share bar -->
+    <script src="../js/socialite.min.js"></script>    
     <!-- MIDI.js -->
     <script src="../js/MIDI.js/js/MIDI/Player.js" type="text/javascript"></script>
     <script src="../js/MIDI.js/js/MIDI/AudioDetect.js" type="text/javascript"></script>
@@ -32,6 +35,7 @@
     <script src="../js/mozart-player.js"></script>
     <!-- time sync -->
     <script src="../js/NTP.js"></script>
+    <script src="../js/socialbar.js"></script>
   </head>
   <body>
     <header class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -127,6 +131,20 @@
             <h1 class="playingTitle">songTitle</h1>
         </div>
       </div>
+      <ul class="social-buttons cf">
+        <li>
+            <a href="http://twitter.com/share" class="socialite twitter-share" data-text="Mozart" data-url="http://mozart.2013.nodeknockout.com/player/" data-count="vertical" rel="nofollow" target="_blank"><span class="vhidden">Share on Twitter</span></a>
+        </li>
+        <li>
+            <a href="https://plus.google.com/share?url=http://mozart.2013.nodeknockout.com/player/" class="socialite googleplus-one" data-size="tall" data-href="http://mozart.2013.nodeknockout.com/player/" rel="nofollow" target="_blank"><span class="vhidden">Share on Google+</span></a>
+        </li>
+        <li>
+            <a href="http://www.facebook.com/sharer.php?u=http://mozart.2013.nodeknockout.com/player/&t=Mozart" class="socialite facebook-like" data-href="http://mozart.2013.nodeknockout.com/player/" data-send="false" data-layout="box_count" data-width="60" data-show-faces="false" rel="nofollow" target="_blank"><span class="vhidden">Share on Facebook</span></a>
+        </li>
+        <li>
+            <a href="http://www.linkedin.com/shareArticle?mini=true&url=http://mozart.2013.nodeknockout.com/player/&title=Mozart" class="socialite linkedin-share" data-url="http://mozart.2013.nodeknockout.com/player/" data-counter="top" rel="nofollow" target="_blank"><span class="vhidden">Share on LinkedIn</span></a>
+        </li>
+      </ul>
     </div>
   </body>
 </html>
