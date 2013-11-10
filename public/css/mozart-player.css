@@ -26,6 +26,18 @@
   font-family: 'IM Fell English SC', serif;
   color: #fff;
 }
+
+.mozart-header h1 > span {
+  display: inline-block;
+  background-image: url('../images/gclef-white.png');
+  background-repeat: no-repeat;
+  background-size: 30%;
+  background-position:5rem 2rem;
+  width:10rem;
+  height: 10rem;
+  margin-bottom: -0.5rem;
+}
+
 .mozart-header p {
   font-family: 'IM Fell English SC', serif;
   font-weight: 300;
