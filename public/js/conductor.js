@@ -57,6 +57,11 @@ window.addEventListener('load', function() {
         var speed = MobileMotion.record(vector);
         seq = (seq + 1) % 800;
         ws.send(JSON.stringify({
+          event: 'setGroupSpeed',
+          data: speed
+        }));
+        
+        ws.send(JSON.stringify({
           event: 'sendMessageToGroup',
           data: {
             action: 'speed',
