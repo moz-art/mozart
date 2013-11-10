@@ -12,7 +12,10 @@ MIDIChannel.prototype.noteOff = function(note, delay) {
 };
 
 MIDIChannel.prototype.setProgram = function(progNum) {
-  MIDI.programChange(this.channelIndex, progNum);
+  if (!MIDI.Soundfont[progNum]) {
+    console.log('fallback to piano');
+  }
+  MIDI.programChange(this.channelIndex, MIDI.Soundfont[progNum] ? progNum : 0);
 };
 
 MIDIChannel.prototype.stopAllNotes = function() {
