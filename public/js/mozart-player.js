@@ -174,6 +174,8 @@ function readyToGo() {
   if (joinToOthers) {
     $('.step-' + currentStep).hide();
     currentStep = 2;
+    debugger;
+    $('#groupNumber').text(groupID);
     nextStep();
   } else {
     nextStep();
@@ -181,8 +183,8 @@ function readyToGo() {
 }
 
 function nextStep() {
-  $('.step-' + currentStep++).hide();
-  $('.step-' + currentStep).show();
+  $('.step-' + currentStep++).hide('fast');
+  $('.step-' + currentStep).show('fast');
 }
 
 function init() {
@@ -282,6 +284,7 @@ function joinGroup(id) {
 
 function startToPlay() {
   console.log('start to player song now...');
+  nextStep();
   activePlayer.replay();
 }
 

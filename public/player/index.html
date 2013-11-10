@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <title>MIDI Player</title>
     <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootswatch/3.0.1/flatly/bootstrap.min.css">
     <!-- Optional theme -->
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">
+    <!--<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap-theme.min.css">-->
     <link rel="stylesheet" href="../css/mozart-player.css">
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://code.jquery.com/jquery.js"></script>
@@ -34,6 +34,14 @@
     <script src="../js/NTP.js"></script>
   </head>
   <body>
+    <header class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <a href="/public/player/" class="navbar-brand">Mozart</a>
+        </div>
+      </div>
+    </header>
+    <div class="placeholder"></div>
     <!-- STEP 0 loading -->
     <div class="panel panel-primary step-0">
       <div class="panel-heading">Loading</div>
@@ -41,49 +49,64 @@
         <img class="app-loading" src="../images/loading.gif"/>
       </div>
     </div>
-
-    <!-- STEP 1 -->
-    <div class="panel panel-primary step-1">
-      <div class="panel-heading">Step 1: Please Choose a Song</div>
-      <div class="container panel-body">
-        <!-- song button -->
-        <div class="btn-group">
-          <button type="button" class="btn btn-default dropdown-toggle song-toggle" data-toggle="dropdown">
-            Choose a Song <span class="caret"></span>
-          </button>
-          <ul class="dropdown-menu" role="menu">
-            <li><a data-song="la_campanella_pi.mid" href="#">la_campanella_pi</a></li>
-            <li><a data-song="wedding.mid" href="#">wedding</a></li>
-            <li><a data-song="pachelbel_canon.mid" href="#">Pachelbel Canon</a></li>
-            <li><a data-song="bumblebee.mid" href="#">Bumblebee</a></li>
-            <li><a data-song="turkish_match.mid" href="#">Turkish match</a></li>
-          </ul>
+    <div class="mozart-header">
+      <div class="container">
+        <h1>Mozart</h1>
+        <p>Being a conductor instantly!
+      </div>
+    </div>
+    <div class="container">
+      <!-- STEP 1 -->
+      <div class="panel panel-primary step-1">
+        <div class="panel-heading">Step 1: Please Choose a Song</div>
+        <div class="container panel-body">
+          <!-- song button -->
+          <div class="btn-group">
+            <button type="button" class="btn btn-default dropdown-toggle song-toggle" data-toggle="dropdown">
+              Choose a Song <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a data-song="la_campanella_pi.mid" href="#">la_campanella_pi</a></li>
+              <li><a data-song="wedding.mid" href="#">wedding</a></li>
+              <li><a data-song="pachelbel_canon.mid" href="#">Pachelbel Canon</a></li>
+              <li><a data-song="bumblebee.mid" href="#">Bumblebee</a></li>
+              <li><a data-song="turkish_match.mid" href="#">Turkish match</a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-primary song-confirm">Go</button>
+          <div></div>
+          <div class="well preview-box">
+            <audio class="preview-audio" controls>
+          </div>
         </div>
-        <button type="button" class="btn btn-primary song-confirm">Go</button>
-        <div></div>
-        <div class="well preview-box">
-          <audio class="preview-audio" controls>
+      </div>
+
+      <!-- Step 2 QR Code -->
+      <div class="panel panel-primary step-2">
+        <div class="panel-heading">Step 2: Scan QR Code</div>
+        <div class="panel-body">
+          <!-- QR Code -->
+          <img class="qr-loading" src="../images/loading.gif"/>
+          <div id="group-id"></div>
+          <div class="qrcode-group-id"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Step 2 QR Code -->
-    <div class="panel panel-primary step-2">
-      <div class="panel-heading">Step 2: Scan QR Code</div>
-      <div class="panel-body">
-        <!-- QR Code -->
-        <img class="qr-loading" src="../images/loading.gif"/>
-        <div id="group-id"></div>
-        <div class="qrcode-group-id"></div>
+      <!-- Step 3 MIDI Player -->
+      <div class="panel panel-primary step-3">
+        <div class="panel-heading">Instrument joined</div>
+        <div class="panel-body">
+          <div class="container">
+            <h1 id="groupNumber">Mozart</h1>
+            You've joined to the group. Waiting for conductor.
+          </div>
+        </div>
+      </div>
+      <canvas id="canvas" height="300" width="800"></canvas>
+
+      <div class="panel panel-primary step-4">
+        <h1 id="playingTitle">Music start!</h1>
       </div>
     </div>
-
-    <!-- Step 3 MIDI Player -->
-    <div class="panel panel-primary step-3">
-      <div class="panel-body">
-      You are joined to another group...
-      </div>
-    </div>
-    <canvas id="canvas" height="300" width="800"></canvas>
   </body>
 </html>
