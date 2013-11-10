@@ -1,6 +1,6 @@
 var MobileMotion = {
   MAX_QUEUE_LEN: 10,
-  THRESHOLD: 15,
+  threshold: 15,
   MAX_SPEED: 1000,
   MIN_SPEED: 100,
   TARGET_MAX_SPEED: 2,
@@ -29,7 +29,7 @@ var MobileMotion = {
       this.max = val;
     }
 
-    if (val > this.THRESHOLD && !this.time) {
+    if (val > this.threshold && !this.time) {
       this.time = new Date();
       if (this.prevTime) {
         var ms = this.time - this.prevTime;
@@ -43,7 +43,7 @@ var MobileMotion = {
         return newval;
       }
     }
-    if (val <= this.THRESHOLD && this.time) {
+    if (val <= this.threshold && this.time) {
       this.prevTime = this.time;
       this.time = null;
     }

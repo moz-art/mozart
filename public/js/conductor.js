@@ -15,6 +15,11 @@ window.addEventListener('load', function() {
     groupId = window.location.hash.substr(1);
   }
 
+  var parser = new UAParser();
+  if (parser.getEngine().name === 'WebKit') {
+    MobileMotion.threshold = 8;
+  }
+
   document.getElementById('primary-btn').addEventListener('click', function(evt) {
     if (evt.target.textContent === 'Ready') {
       evt.target.setAttribute('disabled', true);
@@ -66,7 +71,7 @@ window.addEventListener('load', function() {
           event: 'setGroupSpeed',
           data: speed
         }));
-        
+
         ws.send(JSON.stringify({
           event: 'sendMessageToGroup',
           data: {
@@ -74,7 +79,7 @@ window.addEventListener('load', function() {
             data: {
               speed: speed,
               vector: vector,
-              threshold: MobileMotion.THRESHOLD,
+              threshold: MobileMotion.threshold,
               seq: seq
             }
           }
