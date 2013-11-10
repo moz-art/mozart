@@ -43,11 +43,13 @@ function sendMessage(msg) {
 }
 
 function handleGroupMessage(ctrl) {
-  console.log('group message: ' + ctrl.action);
   if (ctrl.action === 'play') {
     console.log('play');
-    startToPlay();
+    scheduleNextTimeSpan(function() {
+      startToPlay();
+    }, 1000);
   } else if (ctrl.action === 'speed') {
+    rendering(ctrl.data);
   }
 }
 
@@ -60,7 +62,7 @@ function scheduleNextTimeSpan(func, span) {
 function scheduleSyncGroupSpeed() {
   scheduleNextTimeSpan(function() {
     sendMessage({'event': 'getGroupSpeed', 'data': NTP.getNow()});
-  }, 500);
+  }, 1000);
 }
 
 function handleGroupSpeed(data) {
@@ -68,10 +70,13 @@ function handleGroupSpeed(data) {
   var processTime = data.responseTime - data.triggerTime;
   NTP.parseServerResponse(clientTime,
                           clientTime - data.triggerTime - processTime);
-  if (activePlayer && activePlayer.getSpeed() !== data.speed) {
+  console.log('1change speed: ' + data.speed);
+  if (data.speed && activePlayer && activePlayer.getSpeed() !== data.speed) {
+    console.log('2change speed: ' + data.speed);
     scheduleNextTimeSpan(function() {
+      console.log('3change speed: ' + data.speed);
       activePlayer.changeSpeed(data.speed);
-    }, 500);
+    }, 1000);
   }  
   scheduleSyncGroupSpeed();
 }
@@ -96,9 +101,6 @@ function handleTrackList(list) {
 
 function handleMessage(msg) {
   var data = JSON.parse(msg.data);
-  if (data.event !== 'getGroupSpeed') {
-    console.log('server message: ' + data.event);
-  }
 
   if (data.event === 'generateGroup') {
     groupID = data.data;
