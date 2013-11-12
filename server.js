@@ -1,5 +1,4 @@
 // https://github.com/nko4/website/blob/master/module/README.md#nodejs-knockout-deploy-check-ins
-require('nko')('sx83ZcpGo9-B20-Z');
 
 const IS_PRODUCTION = true;
 var express = require('express'),
