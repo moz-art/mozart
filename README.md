@@ -1,3 +1,7 @@
+## Play and Vote!
+
+http://mozart.2013.nodeknockout.com/
+
 ## Quick Start
 
 ~~~sh
