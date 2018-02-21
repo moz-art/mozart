@@ -1,5 +1,5 @@
-const HARDCODE_HOSTNAME;
-const WS_URL = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':80';
+const HARDCODE_HOSTNAME = null;
+const WS_URL = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':8000';
 
 var ws, groupId;
 
