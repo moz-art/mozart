@@ -1,5 +1,5 @@
-const HARDCODE_HOSTNAME;
-const SERVER = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':80';
+const HARDCODE_HOSTNAME = null;
+const SERVER = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':8000';
 var choosedMIDI;
 var socket;
 var uiInited;
@@ -36,7 +36,7 @@ function initSocket() {
     };
     socket.onmessage = handleMessage;
     socket.onclose = function() {
-      
+
     };
 }
 
