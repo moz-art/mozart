@@ -1,5 +1,5 @@
 
-const IS_PRODUCTION = true;
+const IS_PRODUCTION = false;
 var express = require('express'),
     http = require('http'),
     app = express(),
