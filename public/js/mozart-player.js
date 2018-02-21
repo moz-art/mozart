@@ -19,7 +19,7 @@ var score;
  * start of socket
  */
 function initSocket() {
-    socket = new WebSocket(SERVER);
+    socket = new WebSocket(WS_URL);
     socket.onopen = function() {
       var href = window.location.href;
       if (/\#[a-zA-Z0-9]+$/.test(href)) {
