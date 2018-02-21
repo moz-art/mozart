@@ -1,5 +1,6 @@
 const HARDCODE_HOSTNAME = null;
-const WS_URL = 'ws://' + (HARDCODE_HOSTNAME || window.location.hostname) + ':8000';
+const PORT = window.location.port || 80;
+const WS_URL = `ws://${HARDCODE_HOSTNAME || window.location.hostname}:${PORT}`;
 
 var ws, groupId;
 
