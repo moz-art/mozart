@@ -11,12 +11,12 @@
     "url": "git@github.com:nko4/mozart.git"
   },
   "dependencies": {
-    "express": "3.4.4",
-    "ws": "0.4.31",
+    "express": "4.16.2",
+    "ws": "4.1.0",
     "hashids": "0.3.1",
     "node-uuid": "1.4.1"
   },
   "engines": {
-    "node": "^6.0.0"
+    "node": "8.x"
   }
 }
