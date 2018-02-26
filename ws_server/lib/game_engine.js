@@ -1,26 +1,26 @@
 
-/**
- * @param {Object} data Speed date for each group for now.
- */
-function GameEngine(data) {
-  this.data = data;
-  this.groups = {};
-}
+class GameEngine {
+  /**
+   * @param {Object} data Speed date for each group for now.
+   */
+  constructor(data) {
+    this.data = data;
+    this.groups = {};
+  }
 
-GameEngine.prototype = {
-  getGameScoreByGroup: function(groupId) {
+  getGameScoreByGroup(groupId) {
     this._countScore(groupId);
     return this.groups[groupId].score;
-  },
+  }
 
   // Release the groups not connected.
-  cleanConnectionByGroup: function(groupId) {
+  cleanConnectionByGroup(groupId) {
     if (this.groups[groupId]) {
       delete this.groups[groupId];
     }
-  },
+  }
 
-  _countScore: function(groupId) {
+  _countScore(groupId) {
     const GOOD_SPEED = 1;
     var speed = this.data[groupId],
         getScore = 0,
@@ -45,6 +45,6 @@ GameEngine.prototype = {
     console.log('getScore: ' + getScore);
     this.groups[groupId].score += getScore;
   }
-};
+}
 
 module.exports = GameEngine;
