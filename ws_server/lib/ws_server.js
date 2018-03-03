@@ -3,7 +3,8 @@ const DEFAULT_PORT = 8888,
 const Server = require('ws').Server;
 const Hashids = require('hashids');
 const uuid = require('node-uuid');
-const SocketHandler = require('./socket_handler');
+const SocketHandler = process.env['BACH'] ? require('./bach_socket_handler')
+                                          : require('./socket_handler');
 
 class WebSocketServer {
   constructor(port, server) {
@@ -11,6 +12,7 @@ class WebSocketServer {
     this.server = server ? new Server({server: server}) :
                           new Server({ port: this.port });
     this.groups = {};
+    this.groupInfos = {};
     this.socketHandler = new SocketHandler(this);
     this._init();
   }
@@ -33,6 +35,16 @@ class WebSocketServer {
           console.log(client.groupId + ' group is removed.');
         }
       });
+
+      client.on('error', (err) => {
+        // if the client is disconnected unexpected, we will receive the ECONNRESET error.
+        if (err.errno !== 'ECONNRESET') {
+          console.error(`client ${client.id} error`, JSON.stringify(err.errno));
+        }
+      });
+    });
+    this.server.on('error', (err) => {
+      console.error('ws server error', err);
     });
   }
 
