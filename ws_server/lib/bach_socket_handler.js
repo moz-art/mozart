@@ -23,6 +23,7 @@ class SocketHandler {
       case 'requestRole':
       case 'setSpeed':
       case 'start':
+      case 'musicianReady':
         this[data.event](data);
         break;
       default:
@@ -44,7 +45,8 @@ class SocketHandler {
       this.ws.groups[this.groupId] = {};
       this.ws.groupInfos[this.groupId] = {
         hasConductor: false,
-        musician: 0,
+        musicianCount: 0,
+        readyCount: 0,
         song: null
       };
     }
@@ -62,10 +64,7 @@ class SocketHandler {
     }
     const group = this.getGroupInfo();
     group.song = data.song;
-    this.ws.sendMessageToGroup(JSON.stringify({
-      event: 'groupChanged',
-      group
-    }));
+    this.sendGroupChanged(group);
   }
 
   setSpeed(data) {
@@ -86,13 +85,13 @@ class SocketHandler {
         if (group.hasConductor) {
           // if group already have a conductor, we should convert client to musician
           role = ROLE_TYPE.MUSICIAN;
-          group.musician++;
+          group.musicianCount++;
         } else {
           group.hasConductor = true;
         }
         break;
       case ROLE_TYPE.MUSICIAN:
-        group.musician++;
+        group.musicianCount++;
         break;
       default:
         console.log(`unknown role found: ${role}`);
@@ -104,11 +103,7 @@ class SocketHandler {
       role,
       group
     });
-    // reply to all clients in the same group.
-    this.ws.sendMessageToGroup(JSON.stringify({
-      event: 'groupChanged',
-      group
-    }));
+    this.sendGroupChanged(group);
   }
 
   start() {
@@ -136,6 +131,20 @@ class SocketHandler {
         group: groupInfo
       }));
     }
+  }
+
+  musicianReady() {
+    const group = this.getGroupInfo();
+    group.readyCount++;
+    this.sendGroupChanged(group);
+  }
+
+  sendGroupChanged(group) {
+    // reply to all clients in the same group.
+    this.ws.sendMessageToGroup(this.groupId, JSON.stringify({
+      event: 'groupChanged',
+      group
+    }));
   }
 
   getGroup() {
