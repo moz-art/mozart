@@ -12,7 +12,8 @@ function Replayer(midiFile, channelClass) {
   var stop = false;
   var activeChannels = null;
   var started = false;
-  
+
+  var allOrderedEvents = [];
   for (var i = 0; i < midiFile.tracks.length; i++) {
     trackStates[i] = {
       'nextEventIndex': 0,
@@ -27,43 +28,65 @@ function Replayer(midiFile, channelClass) {
   for (var i = 0; i < channelCount; i++) {
     channels[i] = new channelClass(i);
   }
-  
-  
-  function getNextEvent() {
-    var ticksToNextEvent = null;
-    var nextEventTrack = null;
-    var nextEventIndex = null;
-    
-    for (var i = 0; i < trackStates.length; i++) {
-      if (
-        trackStates[i].ticksToNextEvent != null
-        && (ticksToNextEvent == null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
-      ) {
-        ticksToNextEvent = trackStates[i].ticksToNextEvent;
-        nextEventTrack = i;
-        nextEventIndex = trackStates[i].nextEventIndex;
-      }
-    }
-    if (nextEventTrack != null) {
-      /* consume event from that track */
-      var nextEvent = midiFile.tracks[nextEventTrack][nextEventIndex];
-      if (midiFile.tracks[nextEventTrack][nextEventIndex + 1]) {
-        trackStates[nextEventTrack].ticksToNextEvent += midiFile.tracks[nextEventTrack][nextEventIndex + 1].deltaTime;
-      } else {
-        trackStates[nextEventTrack].ticksToNextEvent = null;
-      }
-      trackStates[nextEventTrack].nextEventIndex += 1;
-      /* advance timings on all tracks by ticksToNextEvent */
+
+  function prepareOrderedEvents() {
+    var hasMoreEvent = true;
+    while (hasMoreEvent) {
+      var ticksToNextEvent = null;
+      var nextEventTrack = null;
+      var nextEventIndex = null;
       for (var i = 0; i < trackStates.length; i++) {
-        if (trackStates[i].ticksToNextEvent != null) {
-          trackStates[i].ticksToNextEvent -= ticksToNextEvent
+        if (
+          trackStates[i].ticksToNextEvent != null
+          && (ticksToNextEvent == null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
+        ) {
+          ticksToNextEvent = trackStates[i].ticksToNextEvent;
+          nextEventTrack = i;
+          nextEventIndex = trackStates[i].nextEventIndex;
         }
       }
-      nextEventInfo = {
-        'ticksToEvent': ticksToNextEvent,
-        'event': nextEvent,
-        'track': nextEventTrack
+      if (nextEventTrack != null) {
+        /* consume event from that track */
+        var nextEvent = midiFile.tracks[nextEventTrack][nextEventIndex];
+        var nextNextEvent = midiFile.tracks[nextEventTrack][nextEventIndex + 1];
+        if (nextNextEvent) {
+          trackStates[nextEventTrack].ticksToNextEvent += nextNextEvent.deltaTime;
+        } else {
+          trackStates[nextEventTrack].ticksToNextEvent = null;
+        }
+        trackStates[nextEventTrack].nextEventIndex += 1;
+        // Todo : We could add timeline information for each event.
+        //        So that we may synchronize the playback by sending current playing time to each client.
+        nextEventInfo = {
+          'ticksToEvent': ticksToNextEvent,
+          'event': nextEvent,
+          'track': nextEventTrack
+        }
+        allOrderedEvents.push(nextEventInfo);
+      } else {
+        hasMoreEvent = false;
+        nextEventInfo = null;
       }
+    }
+    // ************　Debug purpose　************ //
+    // console.log('TOTAL event length : ' + allOrderedEvents.length);
+    // for (var i = 0; i < allOrderedEvents.length; i++) {
+    //   var eventInfo = allOrderedEvents[i];
+    //   console.log('Event track : ' + eventInfo['track'] + '/event.channel : ' + eventInfo['event'].channel + ', TTE : ' + eventInfo['ticksToEvent']);
+    // }
+
+    // Reverse it, so that the first-played event should be at the tail of list.
+    allOrderedEvents.reverse();
+  }
+
+  var lastTick2Event = 0;
+  function getNextEvent() {
+    var ticksToNextEvent = null;
+    nextEventInfo = allOrderedEvents.pop();
+    if (nextEventInfo) {
+      // Todo : We could filter out unwanted channel event to reduce the unnecessary timeout.
+      ticksToNextEvent = nextEventInfo['ticksToEvent'] - lastTick2Event;
+      lastTick2Event = nextEventInfo['ticksToEvent'];
       var beatsToNextEvent = ticksToNextEvent / ticksPerBeat;
       secondsToNextEvent = beatsToNextEvent / (beatsPerMinute / 60);
     } else {
@@ -84,6 +107,7 @@ function Replayer(midiFile, channelClass) {
     }
   }
 
+  prepareOrderedEvents();
   getNextEvent();
   
   function scheduleNextTimer() {
