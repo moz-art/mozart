@@ -127,7 +127,7 @@ function Replayer(midiFile, channelClass) {
         break;
       case 'channel':
         if (activeChannels !== null && activeChannels !== undefined &&
-            activeChannels.indexOf(event.channel + 1) == -1) {
+            activeChannels.indexOf(event.channel) == -1) {
           return;
         }
         switch (event.subtype) {

@@ -102,7 +102,9 @@ function handleTrackList(list) {
         instruments.push(instrument);
       }
     });
-    channels.push(parseInt(track));
+    // We set track index start from '01' in tracks_manifest.js.
+    // For easier understanding in LIST operation, subtract 1 here.
+    channels.push(parseInt(track)-1);
   });
   nextStep();
   downloadMIDI(choosedMIDI, function() {
