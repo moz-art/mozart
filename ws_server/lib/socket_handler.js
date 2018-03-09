@@ -39,6 +39,8 @@ class SocketHandler {
     this.gameEngine.cleanConnectionByGroup(groupId);
   }
 
+  closeClient(client) {}
+
   _getClientId() {
     this.client.send(JSON.stringify({
       event: this.data.event,

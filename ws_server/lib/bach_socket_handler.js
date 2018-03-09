@@ -31,8 +31,21 @@ class SocketHandler {
     }
   }
 
+  closeClient(client) {
+    const group = this.getGroup();
+    if (client.conductor) {
+      group.hasConductor = false;
+    } else {
+      group.musicianCount--;
+      if (client.ready) {
+        group.readyCount--;
+      }
+    }
+    this.sendGroupChanged(group);
+  }
+
   garbageCollection(groupId) {
-    // no more gc...
+    delete this.ws.groupInfos[groupId];
   }
 
   send(data) {
@@ -40,22 +53,22 @@ class SocketHandler {
   }
 
   joinGroup(data) {
-    this.groupId = data.code;
-    if (!this.ws.groups[this.groupId]) {
-      this.ws.groups[this.groupId] = {};
-      this.ws.groupInfos[this.groupId] = {
+    this.client.groupId = data.code;
+    if (!this.ws.groups[this.client.groupId]) {
+      this.ws.groups[this.client.groupId] = {};
+      this.ws.groupInfos[this.client.groupId] = {
         hasConductor: false,
         musicianCount: 0,
         readyCount: 0,
         song: null
       };
     }
-    this.ws.groups[this.groupId][this.client.id] = this.client;
+    this.ws.groups[this.client.groupId][this.client.id] = this.client;
     this.send({
       event: 'joinGroup',
       group: this.getGroupInfo()
     });
-    console.log(`client [${this.client.id}] joined to ${this.groupId}`);
+    console.log(`client [${this.client.id}] joined to ${this.client.groupId}`);
   }
 
   setSong(data) {
@@ -68,8 +81,10 @@ class SocketHandler {
   }
 
   setSpeed(data) {
-    // TODO: implement this with replayer.
     console.log('speed changed', data.speed);
+    const group = this.getGroupInfo();
+    group.speed = data.speed;
+    this.sendGroupChanged(group);
   }
 
   requestRole(data) {
@@ -86,11 +101,14 @@ class SocketHandler {
           // if group already have a conductor, we should convert client to musician
           role = ROLE_TYPE.MUSICIAN;
           group.musicianCount++;
+          this.client.conductor = false;
         } else {
+          this.client.conductor = true;
           group.hasConductor = true;
         }
         break;
       case ROLE_TYPE.MUSICIAN:
+        this.client.conductor = false;
         group.musicianCount++;
         break;
       default:
@@ -110,12 +128,12 @@ class SocketHandler {
     const group = this.getGroup();
     const groupInfo = this.getGroupInfo();
     if (!groupInfo.song) {
-      console.log(`group ${this.groupId} cannot be started because of no song`);
+      console.log(`group ${this.client.groupId} cannot be started because of no song`);
       return;
     }
     const clientIds = Object.keys(group);
     // remove the conductor out.
-    clientIds.splice(clientIds.indexOf(this.groupId));
+    clientIds.splice(clientIds.indexOf(this.client.groupId));
     const trackIds = Object.keys(tracksManifest.data[`${groupInfo.song}.mid`]);
     const trackMap = assignTracks(clientIds, trackIds);
 
@@ -136,23 +154,24 @@ class SocketHandler {
   musicianReady() {
     const group = this.getGroupInfo();
     group.readyCount++;
+    this.client.ready = true;
     this.sendGroupChanged(group);
   }
 
   sendGroupChanged(group) {
     // reply to all clients in the same group.
-    this.ws.sendMessageToGroup(this.groupId, JSON.stringify({
+    this.ws.sendMessageToGroup(this.client.groupId, JSON.stringify({
       event: 'groupChanged',
       group
     }));
   }
 
   getGroup() {
-    return this.ws.groups[this.groupId];
+    return this.ws.groups[this.client.groupId];
   }
 
   getGroupInfo() {
-    return this.ws.groupInfos[this.groupId];
+    return this.ws.groupInfos[this.client.groupId];
   }
 
   assignTracks(clients, tracks) {

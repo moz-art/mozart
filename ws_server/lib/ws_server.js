@@ -28,7 +28,7 @@ class WebSocketServer {
       });
 
       client.on('close', () => {
-        // DOTO: remove the client from the group.
+        this.socketHandler.closeClient(client);
         console.log('The client ' + client.id + ' is closed.');
         if (this.getActiveClientsNumberByGroup(client.groupId) === 0) {
           this.socketHandler.garbageCollection(client.groupId);
