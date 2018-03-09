@@ -147,8 +147,8 @@ class SocketHandler {
     const clientIds = Object.keys(group);
     // remove the conductor out.
     clientIds.splice(clientIds.indexOf(groupId));
-    const trackIds = Object.keys(tracksManifest.data[`${groupInfo.song}.mid`]);
-    const trackMap = this.assignTracks(clientIds, trackIds);
+    const trackCount = tracksManifest.data[`${groupInfo.song}.mid`].length;
+    const trackMap = this.assignTracks(clientIds, trackCount);
 
     for (let clientId in trackMap) {
       if (this.ws.groups[groupId][clientId].readyState !== READY_STATE_OPEN) {
@@ -187,22 +187,22 @@ class SocketHandler {
     return this.ws.groupInfos[this.client.groupId];
   }
 
-  assignTracks(clients, tracks) {
+  assignTracks(clients, trackCount) {
     const trackMap = {};
-    if (clients.length > tracks.length) {
+    if (clients.length > trackCount) {
       for (let i = 0; i < clients.length; i++) {
         if (trackMap[clients[i]]) {
-          trackMap[clients[i]].push(tracks[i % tracks.length]);
+          trackMap[clients[i]].push(i % trackCount);
         } else {
-          trackMap[clients[i]] = [tracks[i % tracks.length]];
+          trackMap[clients[i]] = [i % trackCount];
         }
       }
     } else {
-      for (let i = 0; i < tracks.length; i++) {
+      for (let i = 0; i < trackCount; i++) {
         if (trackMap[clients[i % clients.length]]) {
-          trackMap[clients[i % clients.length]].push(tracks[i]);
+          trackMap[clients[i % clients.length]].push(i);
         } else {
-          trackMap[clients[i % clients.length]] = [tracks[i]];
+          trackMap[clients[i % clients.length]] = [i];
         }
       }
     }
