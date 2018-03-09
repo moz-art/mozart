@@ -59,8 +59,8 @@ class SocketHandler {
         this.send({
           event: 'joinGroup',
           code: 1001,
-          error: 'group is freezed'
-          group: null,
+          error: 'group is freezed',
+          group: null
         });
         return;
     }
