@@ -32,7 +32,7 @@ class SocketHandler {
   }
 
   closeClient(client) {
-    const group = this.getGroup();
+    const group = this.getGroupInfo();
     if (client.conductor) {
       group.hasConductor = false;
     } else {
@@ -62,6 +62,7 @@ class SocketHandler {
           error: 'group is freezed',
           group: null
         });
+        console.log('group is freezed.');
         return;
     }
     if (!this.ws.groups[this.client.groupId]) {
@@ -137,16 +138,17 @@ class SocketHandler {
   start() {
     const group = this.getGroup();
     const groupInfo = this.getGroupInfo();
+    const groupId = this.client.groupId;
     if (!groupInfo.song) {
-      console.log(`group ${this.client.groupId} cannot be started because of no song`);
+      console.log(`group ${groupId} cannot be started because of no song`);
       return;
     }
     groupInfo.freezed = true;
     const clientIds = Object.keys(group);
     // remove the conductor out.
-    clientIds.splice(clientIds.indexOf(this.client.groupId));
+    clientIds.splice(clientIds.indexOf(groupId));
     const trackIds = Object.keys(tracksManifest.data[`${groupInfo.song}.mid`]);
-    const trackMap = assignTracks(clientIds, trackIds);
+    const trackMap = this.assignTracks(clientIds, trackIds);
 
     for (let clientId in trackMap) {
       if (this.ws.groups[groupId][clientId].readyState !== READY_STATE_OPEN) {
@@ -156,7 +158,7 @@ class SocketHandler {
       this.ws.groups[groupId][clientId].send(JSON.stringify({
         event: 'trackInfo',
         channels: trackMap[clientId],
-        instruments: this.getInstrumentsByTracks(trackMap[clientId]),
+        instruments: this.getInstrumentsByTracks(trackMap[clientId], groupInfo),
         group: groupInfo
       }));
     }
@@ -207,7 +209,7 @@ class SocketHandler {
     return trackMap;
   }
 
-  getInstrumentsByTracks(tracks) {
+  getInstrumentsByTracks(tracks, groupInfo) {
     const song = tracksManifest.data[`${groupInfo.song}.mid`];
     return tracks.reduce((acc, trackId) => (acc.concat(song[trackId])), []);
   }
