@@ -54,6 +54,16 @@ class SocketHandler {
 
   joinGroup(data) {
     this.client.groupId = data.code;
+    if (this.ws.groupInfos[this.client.groupId]
+        && this.ws.groupInfos[this.client.groupId].freezed) {
+        this.send({
+          event: 'joinGroup',
+          code: 1001,
+          error: 'group is freezed'
+          group: null,
+        });
+        return;
+    }
     if (!this.ws.groups[this.client.groupId]) {
       this.ws.groups[this.client.groupId] = {};
       this.ws.groupInfos[this.client.groupId] = {
@@ -131,6 +141,7 @@ class SocketHandler {
       console.log(`group ${this.client.groupId} cannot be started because of no song`);
       return;
     }
+    groupInfo.freezed = true;
     const clientIds = Object.keys(group);
     // remove the conductor out.
     clientIds.splice(clientIds.indexOf(this.client.groupId));
