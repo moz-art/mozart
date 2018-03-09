@@ -22,6 +22,7 @@ class SocketHandler {
       case 'setSong':
       case 'requestRole':
       case 'setSpeed':
+      case 'setVolume':
       case 'start':
       case 'musicianReady':
         this[data.event](data);
@@ -45,6 +46,7 @@ class SocketHandler {
   }
 
   garbageCollection(groupId) {
+    delete this.ws.groups[groupId];
     delete this.ws.groupInfos[groupId];
   }
 
@@ -86,8 +88,26 @@ class SocketHandler {
     if (!data.song) {
       return;
     }
+    const trackInfo = tracksManifest.data[`${data.song}.mid`];
     const group = this.getGroupInfo();
     group.song = data.song;
+    group.volumes = [];
+    for (let i = 0; i < trackInfo.length; i++) {
+      group.volumes.push(0.5);
+    }
+    this.send({
+      event: 'songInfo',
+      song: data.song,
+      tracks: trackInfo
+    })
+    this.sendGroupChanged(group);
+  }
+
+  setVolume(data) {
+    const group = this.getGroupInfo();
+    if (data.channel > -1 && data.channel < group.volumes.length) {
+      group.volumes[data.channel] = data.volume;
+    }
     this.sendGroupChanged(group);
   }
 
