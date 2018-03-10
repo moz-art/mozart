@@ -169,11 +169,10 @@ class SocketHandler {
     // we shouldn't remove the only one player.
     if (clientIds.length > 1) {
       // remove the conductor out which is this client.
-      clientIds.splice(clientIds.indexOf(this.client.id));
+      clientIds.splice(clientIds.indexOf(this.client.id), 1);
     }
     const trackCount = tracksManifest.data[`${groupInfo.song}.mid`].length;
     const trackMap = this.assignTracks(clientIds, trackCount);
-
     for (let clientId in trackMap) {
       if (group[clientId].readyState !== READY_STATE_OPEN) {
         continue;
