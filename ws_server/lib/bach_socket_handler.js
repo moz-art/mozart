@@ -165,13 +165,17 @@ class SocketHandler {
     }
     groupInfo.freezed = true;
     const clientIds = Object.keys(group);
-    // remove the conductor out.
-    clientIds.splice(clientIds.indexOf(groupId));
+    // If we want to support conductor and musician at the same device,
+    // we shouldn't remove the only one player.
+    if (clientIds.length > 1) {
+      // remove the conductor out which is this client.
+      clientIds.splice(clientIds.indexOf(this.client.id));
+    }
     const trackCount = tracksManifest.data[`${groupInfo.song}.mid`].length;
     const trackMap = this.assignTracks(clientIds, trackCount);
 
     for (let clientId in trackMap) {
-      if (this.ws.groups[groupId][clientId].readyState !== READY_STATE_OPEN) {
+      if (group[clientId].readyState !== READY_STATE_OPEN) {
         continue;
       }
       // XXX: this is ugly, we should rewrite the code to avoid cross reference of ws and this one.
