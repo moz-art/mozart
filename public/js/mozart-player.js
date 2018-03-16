@@ -29,7 +29,6 @@ function initSocket() {
       } else {
         requestGroupID();
       }
-      scheduleSyncGroupSpeed();
     };
 
     socket.onerror = function() {
@@ -72,25 +71,6 @@ function scheduleNextTimeSpan(func, span) {
   setTimeout(func, wait);
 }
 
-function scheduleSyncGroupSpeed() {
-  scheduleNextTimeSpan(function() {
-    sendMessage({'event': 'getGroupSpeed', 'data': NTP.getNow()});
-  }, 1000);
-}
-
-function handleGroupSpeed(data) {
-  var clientTime = data.clientTme;
-  var processTime = data.responseTime - data.triggerTime;
-  NTP.parseServerResponse(clientTime,
-                          clientTime - data.triggerTime - processTime);
-  if (data.speed && activePlayer && activePlayer.getSpeed() !== data.speed) {
-    scheduleNextTimeSpan(function() {
-      activePlayer.changeSpeed(data.speed);
-    }, 1000);
-  }
-  scheduleSyncGroupSpeed();
-}
-
 function handleTrackList(list) {
   console.log('choosedMIDI', choosedMIDI);
   var instruments = [];
@@ -102,9 +82,7 @@ function handleTrackList(list) {
         instruments.push(instrument);
       }
     });
-    // We set track index start from '01' in tracks_manifest.js.
-    // For easier understanding in LIST operation, subtract 1 here.
-    channels.push(parseInt(track)-1);
+    channels.push(parseInt(track));
   });
   nextStep();
   downloadMIDI(choosedMIDI, function() {
@@ -115,6 +93,31 @@ function handleTrackList(list) {
 function handleScore(data) {
   if (score) {
     score.innerHTML = data;
+  }
+}
+
+function handleNoteInfo(data) {
+  switch (data.action) {
+    case 'on':
+      {
+        activePlayer.handleNoteOn(data.ec, data.en, data.ev);
+        break;
+      }
+    case 'off':
+      {
+        activePlayer.handleNoteOff(data.ec, data.en);
+      }
+      break;
+    case 'prgChange':
+      {
+        activePlayer.handleProgramChange(data.ec, data.ep);
+      }
+      break;
+    case 'stop':
+      {
+        activePlayer.stop();
+      }
+      break;
   }
 }
 
@@ -140,10 +143,10 @@ function handleMessage(msg) {
   } else if (data.event === 'tracksManifest') {
     console.log('all tracks got');
     allTracks = data.data.data;
-  } else if (data.event === 'getGroupSpeed') {
-    handleGroupSpeed(data.data);
   } else if (data.event === 'showGameScore') {
     handleScore(data.data);
+  } else if (data.event == 'notesInfo') {
+    handleNoteInfo(data.data);
   }
  }
 
@@ -182,7 +185,7 @@ function rendering (data) {
  */
 
 function initMIDIjs(instruments, channels) {
-  console.log('start loading MIDI.js');
+  console.log('[mozart-player.js] start loading MIDI.js');
   MIDI.loadPlugin({
     soundfontUrl: "../js/MIDI.js/soundfont/",
     instruments: instruments,
