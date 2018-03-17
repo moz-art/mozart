@@ -522,7 +522,10 @@ class SocketHandler {
 
   getInstrumentsByTracks(tracks, groupInfo) {
     const song = tracksManifest.data[`${groupInfo.song}.mid`];
-    return tracks.reduce((acc, trackId) => (acc.concat(song[trackId])), []);
+    return tracks.reduce((acc, channel) => (acc.concat({
+      channel,
+      instruments: song[channel]
+    })), []);
   }
 
 };
