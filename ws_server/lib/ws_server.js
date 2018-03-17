@@ -48,6 +48,16 @@ class WebSocketServer {
     });
   }
 
+  sendMsg(gid, cid, msg) {
+    for (let clientId in this.groups[gid]) {
+      let readyState = this.groups[gid][clientId].readyState;
+      if (readyState === READY_STATE_OPEN && cid === clientId) {
+        this.groups[gid][clientId].send(msg);
+        break;
+      }
+    }
+  }
+
   sendMessageToGroup(id, message) {
     for (let clientId in this.groups[id]) {
       let readyState = this.groups[id][clientId].readyState;

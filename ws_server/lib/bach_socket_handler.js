@@ -37,6 +37,8 @@ function WSReplayer(ws, gid, midiFile) {
   var stop = false;
   var started = false;
   var volumes = [];
+  var ch2Client = {}
+
 
   var allOrderedEvents = [];
   for (var i = 0; i < midiFile.tracks.length; i++) {
@@ -167,8 +169,9 @@ function WSReplayer(ws, gid, midiFile) {
           // TODO: Send notes operation to specific client.
           switch (event.subtype) {
             case 'noteOn':
-            const velocity = Math.min(event.velocity * volumes[event.channel] * 2, 127);
-              self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+              var cid = self.ch2Client[event.channel];
+              const velocity = Math.min(event.velocity * volumes[event.channel] * 2, 127);
+              self.ws.sendMsg(self.groupId, cid, JSON.stringify({
                 event: 'noteOn',
                 notes: {
                   note: event.noteNumber,
@@ -177,17 +180,35 @@ function WSReplayer(ws, gid, midiFile) {
                 },
                 result: true
               }));
+              // self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+              //   event: 'noteOn',
+              //   notes: {
+              //     note: event.noteNumber,
+              //     channel: event.channel,
+              //     velocity: velocity
+              //   },
+              //   result: true
+              // }));
               break;
             case 'noteOff':
-              self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+              var cid = self.ch2Client[event.channel];
+              self.ws.sendMsg(self.groupId, cid, JSON.stringify({
                 event: 'noteOff',
                 notes: {
                   note: event.noteNumber,
-                  channel: event.channel,
-                  velocity: event.velocity
+                  channel: event.channel
                 },
-                result: true,
+                result: true
               }));
+              // self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+              //   event: 'noteOff',
+              //   notes: {
+              //     note: event.noteNumber,
+              //     channel: event.channel,
+              //     velocity: event.velocity
+              //   },
+              //   result: true,
+              // }));
               break;
             case 'programChange':
               self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
@@ -240,7 +261,8 @@ function WSReplayer(ws, gid, midiFile) {
     'replay': replay,
     'stop': stopPlaying,
     'setVolumes': setVolumes,
-    'finishedCallback': null
+    'finishedCallback': null,
+    'ch2Client':ch2Client
   };
   return self;
 }
@@ -439,6 +461,9 @@ class SocketHandler {
     for (let clientId in trackMap) {
       if (group[clientId].readyState !== READY_STATE_OPEN) {
         continue;
+      }
+      for (let ch of trackMap[clientId]) {
+        this.groupReplayer[groupId].ch2Client[ch] = clientId;
       }
       // XXX: this is ugly, we should rewrite the code to avoid cross reference of ws and this one.
       this.ws.groups[groupId][clientId].send(JSON.stringify({
