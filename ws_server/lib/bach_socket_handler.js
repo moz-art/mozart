@@ -36,6 +36,7 @@ function WSReplayer(ws, gid, midiFile) {
   var startTime;
   var stop = false;
   var started = false;
+  var volumes = [];
 
   var allOrderedEvents = [];
   for (var i = 0; i < midiFile.tracks.length; i++) {
@@ -166,12 +167,13 @@ function WSReplayer(ws, gid, midiFile) {
           // TODO: Send notes operation to specific client.
           switch (event.subtype) {
             case 'noteOn':
+            const velocity = Math.min(event.velocity * volumes[event.channel] * 2, 127);
               self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
                 event: 'noteOn',
                 notes: {
                   note: event.noteNumber,
                   channel: event.channel,
-                  velocity: event.velocity
+                  velocity: velocity
                 },
                 result: true
               }));
@@ -226,6 +228,10 @@ function WSReplayer(ws, gid, midiFile) {
     return speed;
   }
 
+  function setVolumes(v) {
+    volumes = v;
+  }
+
   var self = {
     'ws'  : ws,
     'groupId' : groupId,
@@ -233,6 +239,7 @@ function WSReplayer(ws, gid, midiFile) {
     'getSpeed': getSpeed,
     'replay': replay,
     'stop': stopPlaying,
+    'setVolumes': setVolumes,
     'finishedCallback': null
   };
   return self;
@@ -253,7 +260,6 @@ class SocketHandler {
   }
 
   handle(client, data) {
-    console.log(`handle event: ${data.event}`);
     this.client = client;
     switch (data.event) {
       case 'joinGroup':
@@ -284,7 +290,9 @@ class SocketHandler {
   }
 
   garbageCollection(groupId) {
-    this.groupReplayer[groupId].stop();
+    if (this.groupReplayer[groupId]) {
+      this.groupReplayer[groupId].stop();
+    }
     delete this.groupReplayer[groupId];
     delete this.ws.groups[groupId];
     delete this.ws.groupInfos[groupId];
@@ -306,7 +314,7 @@ class SocketHandler {
           song: null,
           speed: null
         });
-        console.log('group is freezed.');
+        console.log(`group, ${this.client.groupId} , is freezed.`);
         return;
     }
     if (!this.ws.groups[this.client.groupId]) {
@@ -359,14 +367,14 @@ class SocketHandler {
     if (data.channel > -1 && data.channel < group.volumes.length) {
       group.volumes[data.channel] = data.volume;
     }
-    this.sendGroupChanged(group);
+    this.groupReplayer[this.client.groupId].setVolumes(group.volumes);
   }
 
   setSpeed(data) {
     console.log('speed changed', data.speed);
     const group = this.getGroupInfo();
-    if (group.freezed && group.musicianCount === group.readyCount) {
-      console.log('replayer started');
+    if (group.speed === null && group.freezed && group.musicianCount === group.readyCount
+        && this.groupReplayer[this.client.groupId]) {
       this.groupReplayer[this.client.groupId].replay();
     }
     this.groupReplayer[this.client.groupId].changeSpeed(data.speed);
@@ -380,7 +388,6 @@ class SocketHandler {
       return;
     }
     const group = this.getGroupInfo();
-    console.log('group info', JSON.stringify(group));
     let role = data.role;
     switch(role) {
       case ROLE_TYPE.CONDUCTOR:
