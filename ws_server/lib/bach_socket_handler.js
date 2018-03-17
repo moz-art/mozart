@@ -1,5 +1,242 @@
 const READY_STATE_OPEN = 1;
 const tracksManifest = require('./tracks_manifest');
+const fs = require("fs");
+const mf = require("./midifile.js");
+
+
+function createMidiFile(song) {
+  var filename = `public/midi/${song}.mid`;
+  console.log('[sh.js] download midi : ' + filename);
+  var data = fs.readFileSync(filename, 'binary');
+  var ff = [];
+  var mx = data.length;
+  var scc= String.fromCharCode;
+  for (var z = 0; z < mx; z++) {
+    ff[z] = scc(data.charCodeAt(z) & 255);
+  }
+  var midiFile = parseMIDI(ff.join(""));
+  return midiFile;
+}
+
+function parseMIDI(data) {
+  return mf.MidiFile(data);
+}
+
+function WSReplayer(ws, gid, midiFile) {
+  var ws = ws;
+  var groupId = gid;
+  var trackStates = [];
+  var beatsPerMinute = 120;
+  var ticksPerBeat = midiFile.header.ticksPerBeat;
+  var channelCount = 16;
+  var speed = 1;
+  var nextEventInfo;
+  var secondsToNextEvent = -1;
+  var timerID;
+  var startTime;
+  var stop = false;
+  var started = false;
+
+  var allOrderedEvents = [];
+  for (var i = 0; i < midiFile.tracks.length; i++) {
+    trackStates[i] = {
+      'nextEventIndex': 0,
+      'ticksToNextEvent': (
+        midiFile.tracks[i].length ?
+          midiFile.tracks[i][0].deltaTime :
+          null
+      )
+    };
+  }
+
+  function prepareOrderedEvents() {
+    var hasMoreEvent = true;
+    while (hasMoreEvent) {
+      var ticksToNextEvent = null;
+      var nextEventTrack = null;
+      var nextEventIndex = null;
+      for (var i = 0; i < trackStates.length; i++) {
+        if (
+          trackStates[i].ticksToNextEvent != null
+          && (ticksToNextEvent == null || trackStates[i].ticksToNextEvent < ticksToNextEvent)
+        ) {
+          ticksToNextEvent = trackStates[i].ticksToNextEvent;
+          nextEventTrack = i;
+          nextEventIndex = trackStates[i].nextEventIndex;
+        }
+      }
+      if (nextEventTrack != null) {
+        /* consume event from that track */
+        var nextEvent = midiFile.tracks[nextEventTrack][nextEventIndex];
+        var nextNextEvent = midiFile.tracks[nextEventTrack][nextEventIndex + 1];
+        if (nextNextEvent) {
+          trackStates[nextEventTrack].ticksToNextEvent += nextNextEvent.deltaTime;
+        } else {
+          trackStates[nextEventTrack].ticksToNextEvent = null;
+        }
+        trackStates[nextEventTrack].nextEventIndex += 1;
+        // Todo : We could add timeline information for each event.
+        //        So that we may synchronize the playback by sending current playing time to each client.
+        nextEventInfo = {
+          'ticksToEvent': ticksToNextEvent,
+          'event': nextEvent,
+          'track': nextEventTrack
+        }
+        allOrderedEvents.push(nextEventInfo);
+      } else {
+        hasMoreEvent = false;
+        nextEventInfo = null;
+      }
+    }
+    // ************　Debug purpose　************ //
+    // console.log('TOTAL event length : ' + allOrderedEvents.length);
+    // for (var i = 0; i < allOrderedEvents.length; i++) {
+    //   var eventInfo = allOrderedEvents[i];
+    //   console.log('Event track : ' + eventInfo['track'] + '/event.channel : ' + eventInfo['event'].channel + ', TTE : ' + eventInfo['ticksToEvent']);
+    // }
+
+    // Reverse it, so that the first-played event should be at the tail of list.
+    allOrderedEvents.reverse();
+  }
+
+  var lastTick2Event = 0;
+  function getNextEvent() {
+    var ticksToNextEvent = null;
+    nextEventInfo = allOrderedEvents.pop();
+    if (nextEventInfo) {
+      // Todo : We could filter out unwanted channel event to reduce the unnecessary timeout.
+      ticksToNextEvent = nextEventInfo['ticksToEvent'] - lastTick2Event;
+      lastTick2Event = nextEventInfo['ticksToEvent'];
+      var beatsToNextEvent = ticksToNextEvent / ticksPerBeat;
+      secondsToNextEvent = beatsToNextEvent / (beatsPerMinute / 60);
+    } else {
+      nextEventInfo = null;
+      secondsToNextEvent = -1;
+      finish();
+    }
+  }
+
+  function finish() {
+    self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+      event: 'stop',
+      result: true
+    }));
+    if (self.finishedCallback) {
+      self.finishedCallback();
+    }
+  }
+
+  prepareOrderedEvents();
+  getNextEvent();
+
+  function scheduleNextTimer() {
+    if (stop) {
+      return;
+    }
+
+    if (secondsToNextEvent < 0) {
+      return;
+    }
+    // flush first event
+    handleEvent();
+    getNextEvent();
+    if (secondsToNextEvent < 0) {
+      return;
+    }
+
+    // flush more events
+    while(secondsToNextEvent === 0) {
+      handleEvent();
+      getNextEvent();
+    }
+
+    if (secondsToNextEvent < 0) {
+      return;
+    }
+    startTime = (new Date()).getTime();
+    var nTimeSpan = secondsToNextEvent * 1000 * speed;
+    timerID = setTimeout(scheduleNextTimer, nTimeSpan);
+  }
+
+  function handleEvent() {
+    var event = nextEventInfo.event;
+    switch (event.type) {
+      case 'channel':
+        {
+          // TODO: Send notes operation to specific client.
+          switch (event.subtype) {
+            case 'noteOn':
+              self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+                event: 'noteOn',
+                notes: {
+                  note: event.noteNumber,
+                  channel: event.channel,
+                  velocity: event.velocity
+                },
+                result: true
+              }));
+              break;
+            case 'noteOff':
+              self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+                event: 'noteOff',
+                notes: {
+                  note: event.noteNumber,
+                  channel: event.channel,
+                  velocity: event.velocity
+                },
+                result: true,
+              }));
+              break;
+            case 'programChange':
+              self.ws.sendMessageToGroup(self.groupId, JSON.stringify({
+                event: 'programChange',
+                program: {
+                  program: event.programNumber,
+                  channel: event.channel
+                },
+                result: true,
+              }));
+              break;
+          }
+          break;
+        }
+    }
+  }
+
+  function replay() {
+    started = true;
+    scheduleNextTimer();
+  }
+
+  function stopPlaying() {
+    stop = true;
+    clearTimeout(timerID);
+    finish();
+  }
+
+  function changeSpeed(spd) {
+    if (spd < 10 || spd > 180 || !started) {
+      return;
+    }
+
+    beatsPerMinute = spd;
+  }
+
+  function getSpeed() {
+    return speed;
+  }
+
+  var self = {
+    'ws'  : ws,
+    'groupId' : groupId,
+    'changeSpeed': changeSpeed,
+    'getSpeed': getSpeed,
+    'replay': replay,
+    'stop': stopPlaying,
+    'finishedCallback': null
+  };
+  return self;
+}
 
 const ROLE_TYPE = {
   CONDUCTOR: 'conductor',
@@ -12,6 +249,7 @@ class SocketHandler {
   constructor(ws) {
     this.ws = ws;
     this.client = {};
+    this.groupReplayer = {};
   }
 
   handle(client, data) {
@@ -46,6 +284,8 @@ class SocketHandler {
   }
 
   garbageCollection(groupId) {
+    this.groupReplayer[groupId].stop();
+    delete this.groupReplayer[groupId];
     delete this.ws.groups[groupId];
     delete this.ws.groupInfos[groupId];
   }
@@ -62,7 +302,9 @@ class SocketHandler {
           event: 'joinGroup',
           code: 1001,
           error: 'group is freezed',
-          group: null
+          group: null,
+          song: null,
+          speed: null
         });
         console.log('group is freezed.');
         return;
@@ -73,7 +315,8 @@ class SocketHandler {
         hasConductor: false,
         musicianCount: 0,
         readyCount: 0,
-        song: null
+        song: null,
+        speed: null
       };
     }
     this.ws.groups[this.client.groupId][this.client.id] = this.client;
@@ -95,6 +338,14 @@ class SocketHandler {
     for (let i = 0; i < trackInfo.length; i++) {
       group.volumes.push(0.5);
     }
+    const groupId = this.client.groupId;
+    // init midi resources
+    this.groupReplayer[groupId] = WSReplayer(this.ws, groupId, createMidiFile(group.song));
+    this.groupReplayer[groupId].finishedCallback = () => {
+      this.groupReplayer[groupId] = null;
+      delete this.groupReplayer[groupId];
+    };
+
     this.send({
       event: 'songInfo',
       song: data.song,
@@ -114,6 +365,11 @@ class SocketHandler {
   setSpeed(data) {
     console.log('speed changed', data.speed);
     const group = this.getGroupInfo();
+    if (group.freezed && group.musicianCount === group.readyCount) {
+      console.log('replayer started');
+      this.groupReplayer[this.client.groupId].replay();
+    }
+    this.groupReplayer[this.client.groupId].changeSpeed(data.speed);
     group.speed = data.speed;
     this.sendGroupChanged(group);
   }

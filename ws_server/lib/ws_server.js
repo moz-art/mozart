@@ -51,7 +51,6 @@ class WebSocketServer {
   sendMessageToGroup(id, message) {
     for (let clientId in this.groups[id]) {
       let readyState = this.groups[id][clientId].readyState;
-      console.log('Client ' + clientId + ' readyState: ' + readyState);
 
       if (readyState === READY_STATE_OPEN) {
         this.groups[id][clientId].send(message);
